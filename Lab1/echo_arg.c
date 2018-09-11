@@ -11,6 +11,6 @@ int main(int argc, char **argv) {
         printf("Usage: %s ARG\n", argv[0]);
         return 1;
     }
-    printf("Your command-line argument: %s\n", argv[1]);
+    printf("Your command-line argument: %s\n", argv[0]);
     return 0;
 }
