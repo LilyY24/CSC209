@@ -90,14 +90,3 @@ int check_regular_sudoku(int **puzzle) {
     
     return 0;
 }
-
-// int main(int argc, char const *argv[])
-// {
-//     int array1[] = {1, 2, 3};
-//     int array2[] = {4, 5, 6};
-//     int array3[] = {7, 8, 9};
-//     int* element[] = {array1, array2, array3};
-//     printf("%d", check_group(element, 3));
-//     return 0;
-// }
-
