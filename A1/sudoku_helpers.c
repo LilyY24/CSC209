@@ -53,14 +53,14 @@ int check_regular_sudoku(int **puzzle) {
     for (int i = 0; i < 9; i++){
         int* group[3];
         int temp[9];
-        for (int j =0; i < 9; i++){
+        for (int j =0; j < 9; j++){
             temp[j] = puzzle[j][i];
         }
         group[0] = &temp[0];
         group[1] = &temp[3];
         group[2] = &temp[6];
         if (check_group(group, 3)){
-            return 1;
+            return 2;
         }
     }
     // check each 3x3 squares
@@ -69,18 +69,25 @@ int check_regular_sudoku(int **puzzle) {
         int block_row = i / 3;
         int block_column = i - (i / 3) * block_row;
         int temp[9];
+        int cursor = 0;
         for (int j = 0; j < 3; j++){
             for (int k = 0; k < 3; k++){
-                temp[j] = puzzle[block_row + j][block_column + k];
+                temp[cursor] = puzzle[block_row * 3 + j][block_column * 3 + k];
+                cursor++;
             }
         }
         group[0] = &temp[0];
         group[1] = &temp[3];
         group[2] = &temp[6];
         if (check_group(group, 3)){
-            return 1;
+            for (int i = 0; i<9; i++){
+                printf("%d", temp[i]);
+            }
+            printf("block_row %d\n", block_row);
+            return 3;
         }
     }
+    
     return 0;
 }
 
