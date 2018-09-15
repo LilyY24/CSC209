@@ -17,7 +17,6 @@ int main() {
     int row9[9] = {9, 4, 6, 1, 5, 2, 3, 8, 7};
 
     int *puzzle[9] = {row1, row2, row3, row4, row5, row6, row7, row8, row9};
-    printf("%d",check_regular_sudoku(puzzle));
     if (check_regular_sudoku(puzzle)) {
         printf("Invalid Sudoku\n");
     } else {
