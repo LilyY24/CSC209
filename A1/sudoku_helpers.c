@@ -51,24 +51,32 @@ int check_regular_sudoku(int **puzzle) {
     }
     // check each column
     for (int i = 0; i < 9; i++){
-        int* group[9];
+        int* group[3];
+        int temp[9];
         for (int j =0; i < 9; i++){
-            group[j] = &((puzzle[i])[j]);
+            temp[j] = puzzle[j][i];
         }
+        group[0] = &temp[0];
+        group[1] = &temp[3];
+        group[2] = &temp[6];
         if (check_group(group, 3)){
             return 1;
         }
     }
     // check each 3x3 squares
     for (int i = 0; i < 9; i++){
-        int* group[9];
+        int* group[3];
         int block_row = i / 3;
         int block_column = i - (i / 3) * block_row;
+        int temp[9];
         for (int j = 0; j < 3; j++){
             for (int k = 0; k < 3; k++){
-                group[j] = &((puzzle[block_row + j][block_column + k]));
+                temp[j] = puzzle[block_row + j][block_column + k];
             }
         }
+        group[0] = &temp[0];
+        group[1] = &temp[3];
+        group[2] = &temp[6];
         if (check_group(group, 3)){
             return 1;
         }
