@@ -64,7 +64,7 @@ int check_regular_sudoku(int **puzzle) {
         int* group[9];
         int block_row = i / 3;
         int block_column = i - (i / 3) * block_row;
-        for (int j = 0; j < 3; i++){
+        for (int j = 0; j < 3; j++){
             for (int k = 0; k < 3; k++){
                 group[j] = &((puzzle[block_row + j][block_column + k]));
             }
