@@ -76,6 +76,11 @@ int check_regular_sudoku(int **puzzle) {
                 cursor++;
             }
         }
+        printf("-----------------");
+            for (int i = 0; i<9; i++){
+                printf("%d", temp[i]);
+            }
+        printf("-----------------");
         group[0] = &temp[0];
         group[1] = &temp[3];
         group[2] = &temp[6];
