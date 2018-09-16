@@ -39,3 +39,12 @@ int main(int arg, char **argv){
     return 0;
 }
 
+char* handle_without_argument(char** content){
+    return "a";
+}
+
+char* handle_with_argument(char** content, int pid){
+    pid++;
+    return "a";
+}
+
