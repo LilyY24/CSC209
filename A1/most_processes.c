@@ -16,21 +16,24 @@ int main(int arg, char **argv){
         return 1;
     }
     // Read from stdin
-    char **content = (char**)malloc(sizeof(char*)*2);
-    int i = 1;
+    char **content = (char**)malloc(sizeof(char*) * 2);
+    int i = 2;
     int used = 0;
     char* temp = (char*)malloc(sizeof(char)*1024);
     while ((fgets(temp, 1024, stdin) != NULL)){
         content[used] = temp;
         used++;
-        free(temp);
         temp = (char*)malloc(sizeof(char)*1024);
         if (i == used){
             i = i * 2;
             content = (char**)realloc(content, sizeof(char*) * i );
         }
     }
-
+    //Debug
+    // for (int i = 0; i < 100; i++){
+    //      printf("%s", content[i]);
+    // }
+    //End
     //Handle the input accordingly
     if (arg == 1){
         handle_without_argument(content, used);
@@ -54,7 +57,7 @@ int handle_without_argument(char** content, int length){
             names[0] = get_name(content[0]);
             numbers[0]++;
             num_people++;
-        } else if (strcmp(get_name(content[i-1]), get_name(content[i]))){
+        } else if (!strcmp(get_name(content[i-1]), get_name(content[i]))){
             numbers[cursor]++;
         } else{
             cursor++;
@@ -69,12 +72,42 @@ int handle_without_argument(char** content, int length){
             winner_cursor = i;
         }
     }
-    printf("%s %d", *names[winner_cursor], numbers[winner_cursor]);
+    printf("%s %d\n", names[winner_cursor], numbers[winner_cursor]);
     return 0;
 }
 
 int handle_with_argument(char** content, int pid, int length){
     pid++;
-    return "a";
+    return 0;
+}
+
+char* get_name(char* line){
+    int i = 0;
+    char c = ' ';
+    while (line[i] != c){
+        i++;
+    }
+    char* result = (char*)malloc(sizeof(char)*i); 
+    strncpy(result, line, i);
+    return result;
+
+}
+
+int get_pid(char* line){
+    int i = 0;
+    char c = ' ';
+    while (line[i] != c){
+        i++;
+    }
+    while (line[i] == c){
+        i++;
+    }
+    int j = i;
+    while (line[j] != c || line[j] == '\0'){
+        j++;
+    }
+    char* result = (char*)malloc(sizeof(char) * (j-i));
+    strncpy(result, line + i, j - i);
+    return atoi(result);
 }
 
