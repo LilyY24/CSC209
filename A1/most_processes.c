@@ -4,11 +4,11 @@
 
 int handle_without_argument(char** content, int length);
 
-int handle_with_argument(char** content, int pid, int length);
+int handle_with_argument(char** content, int ppid, int length);
 
 char* get_name(char* line);
 
-int get_pid(char* line);
+int get_ppid(char* line);
 
 int main(int arg, char **argv){
     if (arg >= 3){
@@ -38,7 +38,8 @@ int main(int arg, char **argv){
     if (arg == 1){
         handle_without_argument(content, used);
     } else{
-        handle_with_argument(content, (int)argv[1], used);
+        printf("ppid: %d\n", (int)(argv[1] - '0'));
+        handle_with_argument(content, (int)(argv[1] - '0'), used);
     }
     return 0;
 }
@@ -76,8 +77,23 @@ int handle_without_argument(char** content, int length){
     return 0;
 }
 
-int handle_with_argument(char** content, int pid, int length){
-    pid++;
+int handle_with_argument(char** content, int ppid, int length){
+    // Filter the content, such that it only contain lines with wanted ppid
+    char** valid_content = (char**)malloc(sizeof(char*));
+    int used = 0;
+    for (int i = 0; i < length; i++){
+        char *line = content[i];
+        // printf("%d\n", get_ppid(line));
+        if (get_ppid(line) == ppid){
+            valid_content[used] = line;
+            used++;
+        }
+    }
+    printf("%d", used);
+    for(int i = 0; i < used; i++){
+        printf("%s", valid_content[i]);
+    }
+    handle_without_argument(valid_content, used);
     return 0;
 }
 
@@ -93,21 +109,30 @@ char* get_name(char* line){
 
 }
 
-int get_pid(char* line){
+int get_ppid(char* line){
     int i = 0;
     char c = ' ';
+    // Find first space
     while (line[i] != c){
         i++;
     }
     while (line[i] == c){
         i++;
     }
-    int j = i;
-    while (line[j] != c || line[j] == '\0'){
-        j++;
+    while (line[i] != c){
+        i++;
     }
-    char* result = (char*)malloc(sizeof(char) * (j-i));
-    strncpy(result, line + i, j - i);
+    while (line[i] == c){
+        i++;
+    }
+    int start = i;
+    int end = start;
+    while (line[end] != c){
+        end++;
+    }
+    char* result = (char*)malloc(sizeof(char) * (end-start));
+    strncpy(result, line + start, end - start);
     return atoi(result);
+    return 0;
 }
 
