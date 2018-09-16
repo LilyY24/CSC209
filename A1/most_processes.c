@@ -29,16 +29,9 @@ int main(int arg, char **argv){
             content = (char**)realloc(content, sizeof(char*) * i );
         }
     }
-    //Debug
-    // for (int i = 0; i < 100; i++){
-    //      printf("%s", content[i]);
-    // }
-    //End
-    //Handle the input accordingly
     if (arg == 1){
         handle_without_argument(content, used);
     } else{
-        printf("ppid: %d\n", (int)(*argv[1] - '0'));
         handle_with_argument(content, (int)(*argv[1] - '0'), used);
     }
     return 0;
@@ -88,10 +81,6 @@ int handle_with_argument(char** content, int ppid, int length){
             valid_content[used] = line;
             used++;
         }
-    }
-    printf("%d", used);
-    for(int i = 0; i < used; i++){
-        printf("%s", valid_content[i]);
     }
     handle_without_argument(valid_content, used);
     return 0;
