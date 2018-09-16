@@ -38,8 +38,8 @@ int main(int arg, char **argv){
     if (arg == 1){
         handle_without_argument(content, used);
     } else{
-        printf("ppid: %d\n", (int)(argv[1] - '0'));
-        handle_with_argument(content, (int)(argv[1] - '0'), used);
+        printf("ppid: %d\n", (int)(*argv[1] - '0'));
+        handle_with_argument(content, (int)(*argv[1] - '0'), used);
     }
     return 0;
 }
