@@ -11,31 +11,27 @@ int main(int arg, char **argv){
         return 1;
     }
     // Read from stdin
-    char **content = (char**)malloc(1 * sizeof(int));
-    int i = 0;
+    char **content = (char**)malloc(sizeof(char*)*2);
+    int i = 1;
     int used = 0;
-    char temp[1024];
+    char* temp = (char*)malloc(sizeof(char)*1024);
     while ((fgets(temp, 1024, stdin) != NULL)){
-        content[i] = temp;
+        content[used] = temp;
         used++;
+        free(temp);
+        temp = (char*)malloc(sizeof(char)*1024);
         if (i == used){
-            content = (char**)realloc(content, sizeof(int) * i * 2);
             i = i * 2;
+            content = (char**)realloc(content, sizeof(char*) * i );
         }
     }
 
-    // Debug start
-    for (int j = 0; j < i; j++){
-        printf("%s", content[j]);
-    }
-    // Debug end
-
     // Handele the input accordingly
-    if (arg == 1){
-        printf("%s", handle_without_argument(content));
-    } else{
-        printf("%s", handle_with_argument(content, (int)argv[1]));
-    }
+    // if (arg == 1){
+    //     printf("%s", handle_without_argument(content));
+    // } else{
+    //     printf("%s", handle_with_argument(content, (int)argv[1]));
+    // }
     return 0;
 }
 
