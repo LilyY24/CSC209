@@ -60,6 +60,9 @@ int handle_without_argument(char** content, int length){
             numbers[cursor]++;
         }
     }
+    if (num_people == 0){
+        return 0;
+    }
     int winner_cursor = 0;
     for (int i =0; i < num_people; i++){
         if (numbers[i] > numbers[winner_cursor]){
