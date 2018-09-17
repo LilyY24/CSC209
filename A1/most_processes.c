@@ -32,7 +32,7 @@ int main(int arg, char **argv){
     if (arg == 1){
         handle_without_argument(content, used);
     } else{
-        handle_with_argument(content, (int)(*argv[1] - '0'), used);
+        handle_with_argument(content, atoi(argv[1]), used);
     }
     return 0;
 }
