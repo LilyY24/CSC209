@@ -4,10 +4,12 @@
 int main(){
     char phone[11];
     int num;
+    int has_error;
     scanf("%s", phone);
     while(scanf("%d", &num) != EOF){
         if (num < -1 || num > 9){
             printf("ERROR\n");
+            has_error = 1;
         } else{
             if (num == -1){
                 printf("%s\n", phone);
@@ -16,5 +18,5 @@ int main(){
             }
         }
     }
-    return 0;
+    return has_error;
 }
