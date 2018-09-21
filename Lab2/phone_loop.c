@@ -18,5 +18,8 @@ int main(){
             }
         }
     }
-    return has_error;
+    if (has_error){
+        return 1;
+    }
+    return 0;
 }
