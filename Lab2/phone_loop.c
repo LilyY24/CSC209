@@ -4,7 +4,7 @@
 int main(){
     char phone[11];
     int num;
-    int has_error;
+    int has_error = 0;
     scanf("%s", phone);
     while(scanf("%d", &num) != EOF){
         if (num < -1 || num > 9){
