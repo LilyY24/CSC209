@@ -71,6 +71,6 @@ int main(int argc, char **argv) {
     free(full_array);
     free(result[0]);
     free(result[1]);
-    free(result);
+    //free(result);
     return 0;
 }
