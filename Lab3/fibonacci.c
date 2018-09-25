@@ -13,8 +13,24 @@
  * See the main function for an example call to fib.
  * Pay attention to the expected type of fib's parameters.
  */
+void fib(int **fib_sequence, int count){
+    *fib_sequence = (int*)malloc(sizeof(int) * count);
+    if (count == 1){
+        (*fib_sequence)[0] = 0;
+        return;
+    } else if (count == 2){
+        (*fib_sequence)[0] = 0;
+        (*fib_sequence)[1] = 1;
+        return;
+    } else{
+        (*fib_sequence)[0] = 0;
+        (*fib_sequence)[1] = 1;
+        for (int i = 2; i < count; i++){
+            (*fib_sequence)[i] = (*fib_sequence)[i - 1] + (*fib_sequence)[i - 2];
+        }
+    }
+}
 
-/* Write your solution here */
 
 
 int main(int argc, char **argv) {
