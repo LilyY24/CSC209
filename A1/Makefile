@@ -1,3 +1,4 @@
+SHELL := /bin/bash
 most_processes: most_processes.c 
 	gcc -Wall -std=gnu99 -o most_processes most_processes.c
 
