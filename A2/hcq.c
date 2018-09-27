@@ -6,6 +6,16 @@
 #define INPUT_BUFFER_SIZE 256
 
 /*
+ * Return the number of students for a given course.
+ */
+int find_students_waiting(Course *course, Student *stu_list);
+
+/*
+ * Return the number of students currently being helped by TAs.
+ */
+int find_students_being_helped(Course *course, struct ta *ta_lst);
+
+/*
  * Return a pointer to the struct student with name stu_name
  * or NULL if no student with this name exists in the stu_list
  */
@@ -27,6 +37,11 @@ Ta *find_ta(Ta *ta_list, char *ta_name) {
  *  or NULL if there is no course in the list with this code.
  */
 Course *find_course(Course *courses, int num_courses, char *course_code) {
+    for (int i = 0; i < num_courses; i++){
+        if (strcmp(courses[i].code, course_code) == 0){
+            return &(courses[i]);
+        }
+    }
     return NULL;
 }
     
@@ -197,12 +212,10 @@ int stats_by_course(Student *stu_list, char *course_code, Course *courses, int n
 
     // TODO: students will complete these next pieces but not all of this 
     //       function since we want to provide the formatting
-       
-
-    
-    // You MUST not change the following statements or your code 
-    //  will fail the testing. 
-/*
+    Course *found = find_course(courses, num_courses, course_code);
+    int students_waiting = find_students_waiting(found, stu_list);
+    int students_being_helped = find_students_being_helped(found, ta_list);
+    //Do NOT change following start;
     printf("%s:%s \n", found->code, found->description);
     printf("\t%d: waiting\n", students_waiting);
     printf("\t%d: being helped currently\n", students_being_helped);
@@ -210,7 +223,7 @@ int stats_by_course(Student *stu_list, char *course_code, Course *courses, int n
     printf("\t%d: gave_up\n", found->bailed);
     printf("\t%f: total time waiting\n", found->wait_time);
     printf("\t%f: total time helping\n", found->help_time);
-*/
+    //Do NOT change above end.
     return 0;
 }
 
@@ -221,6 +234,45 @@ int stats_by_course(Student *stu_list, char *course_code, Course *courses, int n
  * If the configuration file can not be opened, call perror() and exit.
  */
 int config_course_list(Course **courselist_ptr, char *config_filename) {
-    
-    return 0;
+    FILE *input_stream = fopen(config_filename, "r");
+    // Read the first line
+    char *this_line = (char*)malloc(sizeof(char) * INPUT_BUFFER_SIZE);
+    fgets(this_line, INPUT_BUFFER_SIZE, input_stream);
+    int result = strtol(this_line, NULL, 10);
+    *courselist_ptr = malloc(sizeof(Course) * result);
+    int i = 0;
+    while (fgets(this_line, INPUT_BUFFER_SIZE, input_stream) != NULL){
+        Course course;
+        this_line[6] = '\0';
+        strcpy(course.code, this_line);
+        course.description = (char*)malloc(sizeof(char) * INPUT_BUFFER_SIZE);
+        course.description = this_line + 7;
+        *((*courselist_ptr) + i) = course;
+        i++;
+    }
+    return result;
+}
+
+int find_students_waiting(Course *course, Student *stu_list){
+    int result = 0;
+    Student *cur = stu_list;
+    while (cur != NULL){
+        if (course == (cur->course)){
+            result++;
+        }
+        cur = cur->next_overall;
+    }
+    return result;
+}
+
+int find_students_being_helped(Course *course, struct ta *ta_lst){
+    int result = 0;
+    struct ta *cur = ta_lst;
+    while (cur != NULL){
+        if (cur->current_student->course == course){
+            result++;
+        }
+        cur = cur->next;
+    }
+    return result;
 }
