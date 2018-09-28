@@ -55,6 +55,13 @@ Student *find_student(Student *stu_list, char *student_name) {
  *   if no such TA exists in ta_list. 
  */
 Ta *find_ta(Ta *ta_list, char *ta_name) {
+    Ta *cur = ta_list;
+    while (cur != NULL){
+        if (strcmp(cur->name, ta_name) == 0){
+            return cur;
+        }
+        cur = cur->next;
+    }
     return NULL;
 }
 
@@ -229,7 +236,21 @@ int remove_ta(Ta **ta_list_ptr, char *ta_name) {
  * If ta_name is not in ta_list, return 1 and do nothing.
  */
 int take_next_overall(char *ta_name, Ta *ta_list, Student **stu_list_ptr) {
-
+    Ta *ta = find_ta(ta_list, ta_name);
+    if (ta == NULL){
+        return 1;
+    }
+    if (ta->current_student != NULL){
+        ta->current_student->course->helped++;
+        ta->current_student->course->help_time += difftime(time(NULL)
+        , *(ta->current_student->arrival_time));
+        free(ta->current_student);
+    }
+    if (*stu_list_ptr == NULL){
+        return 0;
+    }
+    ta->current_student = *stu_list_ptr;
+    *stu_list_ptr = (**stu_list_ptr).next_overall;
     return 0;
 }
 
@@ -244,7 +265,40 @@ int take_next_overall(char *ta_name, Ta *ta_list, Student **stu_list_ptr) {
  * If course is invalid return 2, but finish with any current student. 
  */
 int take_next_course(char *ta_name, Ta *ta_list, Student **stu_list_ptr, char *course_code, Course *courses, int num_courses) {
-    
+    Ta *ta = find_ta(ta_list, ta_name);
+    if (ta == NULL){
+        return 1;
+    }
+    if (ta->current_student != NULL){
+        ta->current_student->course->helped++;
+        ta->current_student->course->help_time += difftime(time(NULL)
+        , *(ta->current_student->arrival_time));
+        free(ta->current_student);
+    }
+    if (*stu_list_ptr == NULL){
+        return 0;
+    }
+    Course *course = NULL;
+    for (int i = 0; i < num_courses; i++){
+        if (strcmp(courses[i].code, course_code) == 0){
+            course = &courses[i];
+            break;
+        }
+    }
+    if (course == NULL){
+        return 2;
+    }
+    Student *cur = *stu_list_ptr;
+    while (cur != NULL){
+        if (cur->course == course){
+            ta->current_student = cur;
+            cur->course->wait_time += difftime(time(NULL), *cur->arrival_time);
+            cur->arrival_time += time(NULL);
+            remove_student(stu_list_ptr, cur);
+            return 0;
+        }
+        cur = cur->next_overall;
+    }
     return 0;
 }
 
@@ -276,9 +330,23 @@ void print_all_queues(Student *stu_list, Course *courses, int num_courses) {
  * Uncomment and use the printf statements 
  */
 void print_currently_serving(Ta *ta_list) {
-    //printf("No TAs are in the help centre.\n");
-    //printf("TA: %s is serving %s from %s\n",i var1, var2);
-    //printf("TA: %s has no student\n", var3);
+    if (ta_list == NULL){
+        printf("No TAs are in the help centre.\n");
+        return;
+    }
+    Ta *cur = ta_list;
+    while (cur != NULL){
+        if (cur->current_student != NULL){
+            printf("TA: %s is serving %s from %s\n",cur->name
+            , cur->current_student->name, cur->current_student->course->code);
+        } else{
+            printf("TA: %s has no student\n", cur->name);
+        }
+        cur = cur->next;
+    }
+    
+    
+    
 }
 
 
@@ -391,6 +459,7 @@ void remove_student(Student** student, Student* remove){
     Student *cur = *student;
     while (cur != NULL){
         if (cur == remove){
+            printf("here");
             last->next_overall = cur->next_overall; 
             return;
         }
