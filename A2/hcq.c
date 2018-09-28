@@ -402,12 +402,12 @@ int config_course_list(Course **courselist_ptr, char *config_filename) {
     *courselist_ptr = malloc(sizeof(Course) * result);
     int i = 0;
     while (fgets(this_line, INPUT_BUFFER_SIZE, input_stream) != NULL){
-        Course course;
+        Course *course = (Course*)malloc(sizeof(Course));
         this_line[6] = '\0';
-        strcpy(course.code, this_line);
-        course.description = (char*)malloc(sizeof(char) * INPUT_BUFFER_SIZE);
-        course.description = this_line + 7;
-        *((*courselist_ptr) + i) = course;
+        strcpy(course->code, this_line);
+        course->description = (char*)malloc(sizeof(char) * INPUT_BUFFER_SIZE);
+        course->description = this_line + 7;
+        *((*courselist_ptr) + i) = *course;
         i++;
     }
     return result;
