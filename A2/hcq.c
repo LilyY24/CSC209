@@ -16,10 +16,36 @@ int find_students_waiting(Course *course, Student *stu_list);
 int find_students_being_helped(Course *course, struct ta *ta_lst);
 
 /*
+ * Return whether the given student is in queue (with any course)
+ */
+int is_in_queue(Student *stu_list, Student *stu);
+
+/**
+ * Return whethere course_code is in courses; 
+ */
+int has_course(Course *courses, char *course_code, int num_course);
+
+/*
+ * Remove remove from student linked list;
+ */
+void remove_student(Student** student, Student* remove);
+
+/*
+ * Return the number of student waiting for the course
+ */
+int get_waiting_num(Course *courses, int num_courses, Course *course, Student* students);
+
+/*
  * Return a pointer to the struct student with name stu_name
  * or NULL if no student with this name exists in the stu_list
  */
 Student *find_student(Student *stu_list, char *student_name) {
+    Student *cur = stu_list;
+    while (cur != NULL){
+        if (strcmp(cur->name, student_name) == 0){
+            return cur;
+        }
+    }
     return NULL;
 }
 
@@ -56,7 +82,41 @@ Course *find_course(Course *courses, int num_courses, char *course_code) {
  */
 int add_student(Student **stu_list_ptr, char *student_name, char *course_code,
     Course *course_array, int num_courses) {
-
+    if (!has_course(course_array, course_code, num_courses)){
+        return 2;
+    }
+    Student *student = (Student*)malloc(sizeof(Student));
+    student->name = (char*)malloc(sizeof(char)*strlen(student_name));
+    strcpy(student->name, student_name);
+    student->course = (Course*)malloc(sizeof(Course));
+    student->course = find_course(course_array, num_courses, course_code);
+    student->next_overall = (Student*)malloc(sizeof(Student));
+    student->next_course = (Student*)malloc(sizeof(Student));
+    student->arrival_time = (time_t*)malloc(sizeof(time_t));
+    student->next_course = NULL;
+    student->next_overall = NULL;
+    *(student->arrival_time) = time(NULL);
+    Student *cur = *stu_list_ptr;
+    if (cur == NULL){
+        *stu_list_ptr = student;
+        return 0;
+    }
+    Student *last = NULL; 
+    Student *last_course = NULL;
+    while(cur != NULL){
+        if (strcmp(cur->name, student_name) == 0){
+            return 1;
+        }
+        if (strcmp(course_code, cur->course->code) == 0){
+            last_course = cur;
+        }
+        last = cur;
+        cur = cur->next_overall;
+    }
+    last->next_overall = student;
+    if (last_course != NULL){
+        last_course->next_course = student;
+    }
     return 0;
 }
 
@@ -68,6 +128,14 @@ int add_student(Student **stu_list_ptr, char *student_name, char *course_code,
  * If there is no student by this name in the stu_list, return 1.
  */
 int give_up_waiting(Student **stu_list_ptr, char *student_name) {
+    if (!is_in_queue(*stu_list_ptr, find_student(*stu_list_ptr, student_name))){
+        return 1;
+    }
+    Student *student = find_student(*stu_list_ptr, student_name);
+    student->course->wait_time += difftime(time(NULL), *(student->arrival_time));
+    student->course->bailed++;
+    remove_student(stu_list_ptr, student);
+    free(student);
     return 0;
 }
 
@@ -101,7 +169,14 @@ void add_ta(Ta **ta_list_ptr, char *ta_name) {
  * If the TA has no current student, do nothing.
  */
 void release_current_student(Ta *ta) {
-
+    if (ta->current_student == NULL){
+        return;
+    }
+    Student *cur = ta->current_student;
+    cur->course->helped++;
+    cur->course->help_time += difftime(time(NULL), *(cur->arrival_time));
+    free(cur);
+    ta->current_student = NULL;
 }
 
 /* Remove this Ta from the ta_list and free the associated memory with
@@ -181,8 +256,18 @@ int take_next_course(char *ta_name, Ta *ta_list, Student **stu_list_ptr, char *c
  * names.
  */
 void print_all_queues(Student *stu_list, Course *courses, int num_courses) {
-         //printf("%s: %d in queue\n", var1, var2);
-             //printf("\t%s\n",var3); 
+        for (int i =0; i < num_courses; i++){
+            char* course_code = courses[i].code;
+            int num = get_waiting_num(courses, num_courses, &courses[i], stu_list);
+            printf("%s: %d in queue\n", course_code, num);
+            Student *cur = stu_list;
+            while(cur != NULL){
+                if (cur->course == &courses[i]){
+                    printf("\t%s\n",cur->name);
+                }
+                cur = cur->next_overall;   
+            }   
+        } 
 }
 
 
@@ -273,6 +358,54 @@ int find_students_being_helped(Course *course, struct ta *ta_lst){
             result++;
         }
         cur = cur->next;
+    }
+    return result;
+}
+
+int is_in_queue(Student *stu_list, Student *stu){
+    Student *cur = stu_list;
+    while (cur != NULL){
+        if (cur == stu){
+            return 1;
+        }
+        cur = cur->next_overall;
+    }
+    return 0;
+}
+
+int has_course(Course *courses, char *course_code, int num_course){
+    for (int i = 0; i < num_course; i++){
+        if (strcmp(courses[i].code, course_code) == 0){
+            return 1;
+        }
+    }
+    return 0;
+}
+
+void remove_student(Student** student, Student* remove){
+    if (*student == remove){
+        *student = remove->next_overall;
+        return;
+    }
+    Student *last = NULL;
+    Student *cur = *student;
+    while (cur != NULL){
+        if (cur == remove){
+            last->next_overall = cur->next_overall; 
+            return;
+        }
+        cur = cur->next_overall;
+    }
+}
+
+int get_waiting_num(Course *courses, int num_courses, Course *course, Student* students){
+    Student *cur = students;
+    int result = 0;
+    while (cur != NULL){
+        if (cur->course == course){
+            result++;
+        }
+        cur = cur->next_overall;
     }
     return result;
 }
