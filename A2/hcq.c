@@ -354,7 +354,14 @@ void print_currently_serving(Ta *ta_list) {
  *   maybe suggest it is useful for debugging but not included in marking? 
  */ 
 void print_full_queue(Student *stu_list) {
-
+    Student *cur = stu_list;
+    int i = 0;
+    while (cur != NULL){
+        printf("%d: %s form %s", i, cur->name, cur->course->code);
+        i++;
+        cur = cur->next_course;
+    }
+    
 }
 
 /* Prints statistics to stdout for course with this course_code
