@@ -459,10 +459,10 @@ void remove_student(Student** student, Student* remove){
     Student *cur = *student;
     while (cur != NULL){
         if (cur == remove){
-            printf("here");
             last->next_overall = cur->next_overall; 
             return;
         }
+        last = cur;
         cur = cur->next_overall;
     }
 }
