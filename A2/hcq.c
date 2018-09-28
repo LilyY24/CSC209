@@ -361,7 +361,7 @@ void print_full_queue(Student *stu_list) {
         i++;
         cur = cur->next_course;
     }
-    
+
 }
 
 /* Prints statistics to stdout for course with this course_code
@@ -429,8 +429,10 @@ int find_students_being_helped(Course *course, struct ta *ta_lst){
     int result = 0;
     struct ta *cur = ta_lst;
     while (cur != NULL){
-        if (cur->current_student->course == course){
-            result++;
+        if (cur->current_student != NULL){
+            if (cur->current_student->course == course){
+                result++;
+            }
         }
         cur = cur->next;
     }
