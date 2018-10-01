@@ -395,6 +395,10 @@ int stats_by_course(Student *stu_list, char *course_code, Course *courses, int n
  */
 int config_course_list(Course **courselist_ptr, char *config_filename) {
     FILE *input_stream = fopen(config_filename, "r");
+    if (input_stream == NULL){
+        perror("Can't open file.");
+        exit(1);
+    }
     // Read the first line
     char *this_line = (char*)malloc(sizeof(char) * INPUT_BUFFER_SIZE);
     fgets(this_line, INPUT_BUFFER_SIZE, input_stream);
