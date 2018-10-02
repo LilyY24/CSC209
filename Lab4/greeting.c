@@ -38,6 +38,13 @@ int main(int argc, char **argv) {
     char *name = argv[2];
 
     // Your code goes here
+    char *total = (char*)malloc(sizeof(char) * (strlen(argv[1]) + strlen(argv[2]) + 2));
+    strcpy(total, argv[1]);
+    strcat(total, " ");
+    strcat(total, name);
+    strncpy(greeting, total, 20);
+    greeting[19] = '\0';
+    free(total);
 
 
     printf("%s\n", greeting);
