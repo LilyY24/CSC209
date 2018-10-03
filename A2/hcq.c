@@ -425,6 +425,7 @@ int config_course_list(Course **courselist_ptr, char *config_filename) {
         *((*courselist_ptr) + i) = *course;
         i++;
     }
+    free(this_line);
     return result;
 }
 
