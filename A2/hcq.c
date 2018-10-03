@@ -95,10 +95,7 @@ int add_student(Student **stu_list_ptr, char *student_name, char *course_code,
     Student *student = (Student*)malloc(sizeof(Student));
     student->name = (char*)malloc(sizeof(char)*strlen(student_name));
     strcpy(student->name, student_name);
-    student->course = (Course*)malloc(sizeof(Course));
     student->course = find_course(course_array, num_courses, course_code);
-    student->next_overall = (Student*)malloc(sizeof(Student));
-    student->next_course = (Student*)malloc(sizeof(Student));
     student->arrival_time = (time_t*)malloc(sizeof(time_t));
     student->next_course = NULL;
     student->next_overall = NULL;
@@ -112,6 +109,9 @@ int add_student(Student **stu_list_ptr, char *student_name, char *course_code,
     Student *last_course = NULL;
     while(cur != NULL){
         if (strcmp(cur->name, student_name) == 0){
+            free(student->course);
+            free(student->name);
+            free(student->arrival_time);
             return 1;
         }
         if (strcmp(course_code, cur->course->code) == 0){
@@ -142,6 +142,8 @@ int give_up_waiting(Student **stu_list_ptr, char *student_name) {
     student->course->wait_time += difftime(time(NULL), *(student->arrival_time));
     student->course->bailed++;
     remove_student(stu_list_ptr, student);
+    free(student->name);
+    free(student->arrival_time);
     free(student);
     return 0;
 }
@@ -182,6 +184,8 @@ void release_current_student(Ta *ta) {
     Student *cur = ta->current_student;
     cur->course->helped++;
     cur->course->help_time += difftime(time(NULL), *(cur->arrival_time));
+    free(cur->name);
+    free(cur->arrival_time);
     free(cur);
     ta->current_student = NULL;
 }
@@ -244,6 +248,8 @@ int take_next_overall(char *ta_name, Ta *ta_list, Student **stu_list_ptr) {
         ta->current_student->course->helped++;
         ta->current_student->course->help_time += difftime(time(NULL)
         , *(ta->current_student->arrival_time));
+        free(ta->current_student->name);
+        free(ta->current_student->arrival_time);
         free(ta->current_student);
     }
     if (*stu_list_ptr == NULL){
@@ -273,6 +279,8 @@ int take_next_course(char *ta_name, Ta *ta_list, Student **stu_list_ptr, char *c
         ta->current_student->course->helped++;
         ta->current_student->course->help_time += difftime(time(NULL)
         , *(ta->current_student->arrival_time));
+        free(ta->current_student->name);
+        free(ta->current_student->arrival_time);
         free(ta->current_student);
     }
     if (*stu_list_ptr == NULL){
