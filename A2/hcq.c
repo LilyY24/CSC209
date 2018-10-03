@@ -421,7 +421,7 @@ int config_course_list(Course **courselist_ptr, char *config_filename) {
         this_line[6] = '\0';
         strcpy(course->code, this_line);
         course->description = (char*)malloc(sizeof(char) * INPUT_BUFFER_SIZE);
-        course->description = this_line + 7;
+        strcpy(course->description, this_line + 7);
         *((*courselist_ptr) + i) = *course;
         i++;
     }
