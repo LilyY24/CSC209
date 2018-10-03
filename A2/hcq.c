@@ -381,7 +381,7 @@ int stats_by_course(Student *stu_list, char *course_code, Course *courses, int n
     // TODO: students will complete these next pieces but not all of this 
     //       function since we want to provide the formatting
     Course *found = find_course(courses, num_courses, course_code);
-    if (found != NULL){
+    if (found == NULL){
         return 1;
     }
     int students_waiting = find_students_waiting(found, stu_list);
