@@ -271,6 +271,7 @@ int take_next_overall(char *ta_name, Ta *ta_list, Student **stu_list_ptr) {
         free(ta->current_student->name);
         free(ta->current_student->arrival_time);
         free(ta->current_student);
+        ta->current_student = NULL;
     }
     if (*stu_list_ptr == NULL){
         return 0;
@@ -279,6 +280,7 @@ int take_next_overall(char *ta_name, Ta *ta_list, Student **stu_list_ptr) {
     ta->current_student->course->wait_time += difftime(time(NULL), *(ta->current_student->arrival_time));
     *(ta->current_student->arrival_time) = time(NULL);
     *stu_list_ptr = (**stu_list_ptr).next_overall;
+    ta->current_student->course->head = ta->current_student->next_course;
     return 0;
 }
 
@@ -304,6 +306,7 @@ int take_next_course(char *ta_name, Ta *ta_list, Student **stu_list_ptr, char *c
         free(ta->current_student->name);
         free(ta->current_student->arrival_time);
         free(ta->current_student);
+        ta->current_student = NULL;
     }
     if (*stu_list_ptr == NULL){
         return 0;
@@ -325,6 +328,10 @@ int take_next_course(char *ta_name, Ta *ta_list, Student **stu_list_ptr, char *c
             cur->course->wait_time += difftime(time(NULL), *(cur->arrival_time));
             *(cur->arrival_time) = time(NULL);
             remove_student(stu_list_ptr, cur);
+            cur->course->head = cur->next_course;
+            if (cur->course->tail == cur){
+                cur->course->tail = NULL;
+            }
             return 0;
         }
         cur = cur->next_overall;
