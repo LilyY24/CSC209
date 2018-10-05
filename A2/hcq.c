@@ -45,6 +45,7 @@ Student *find_student(Student *stu_list, char *student_name) {
         if (strcmp(cur->name, student_name) == 0){
             return cur;
         }
+        cur = cur->next_overall;
     }
     return NULL;
 }
@@ -121,8 +122,13 @@ int add_student(Student **stu_list_ptr, char *student_name, char *course_code,
         cur = cur->next_overall;
     }
     last->next_overall = student;
+    Course *course = find_course(course_array, num_courses, course_code);
     if (last_course != NULL){
         last_course->next_course = student;
+        course->tail = student;
+    } else{
+        course->head = student;
+        course->tail = student;
     }
     return 0;
 }
@@ -141,6 +147,20 @@ int give_up_waiting(Student **stu_list_ptr, char *student_name) {
     Student *student = find_student(*stu_list_ptr, student_name);
     student->course->wait_time += difftime(time(NULL), *(student->arrival_time));
     student->course->bailed++;
+    //Remove this student from the linked list of this course
+    Student *last = NULL;
+    Student *cur = student->course->head;
+    while (cur != student){
+        last = cur;
+        cur = cur->next_course;
+    }
+    if (last == NULL){
+        student->course->head = student->next_course;
+    }
+    if (student->next_course == NULL){
+        student->course->tail = last;
+    }
+
     remove_student(stu_list_ptr, student);
     free(student->name);
     free(student->arrival_time);
@@ -424,6 +444,8 @@ int config_course_list(Course **courselist_ptr, char *config_filename) {
         strcpy(course->code, this_line);
         course->description = (char*)malloc(sizeof(char) * INPUT_BUFFER_SIZE);
         strcpy(course->description, this_line + 7);
+        course->head = NULL;
+        course->tail = NULL;
         *((*courselist_ptr) + i) = *course;
         i++;
     }
