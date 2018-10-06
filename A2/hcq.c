@@ -457,6 +457,7 @@ int config_course_list(Course **courselist_ptr, char *config_filename) {
         i++;
     }
     free(this_line);
+    fclose(input_stream);
     return result;
 }
 
