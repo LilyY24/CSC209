@@ -94,10 +94,22 @@ int add_student(Student **stu_list_ptr, char *student_name, char *course_code,
         return 2;
     }
     Student *student = (Student*)malloc(sizeof(Student));
+    if (student == NULL){
+        perror("malloc for student");
+        exit(1);
+    }
     student->name = (char*)malloc(sizeof(char)*strlen(student_name));
+    if (student->name == NULL){
+        perror("malloc for student name");
+        exit(1);
+    }
     strcpy(student->name, student_name);
     student->course = find_course(course_array, num_courses, course_code);
     student->arrival_time = (time_t*)malloc(sizeof(time_t));
+    if (student->arrival_time == NULL){
+        perror("malloc for student arrival time");
+        exit(1);
+    }
     student->next_course = NULL;
     student->next_overall = NULL;
     *(student->arrival_time) = time(NULL);
@@ -441,15 +453,31 @@ int config_course_list(Course **courselist_ptr, char *config_filename) {
     }
     // Read the first line
     char *this_line = (char*)malloc(sizeof(char) * INPUT_BUFFER_SIZE);
+    if (this_line == NULL){
+        perror("malloc for line");
+        exit(1);
+    }
     fgets(this_line, INPUT_BUFFER_SIZE, input_stream);
     int result = strtol(this_line, NULL, 10);
     *courselist_ptr = malloc(sizeof(Course) * result);
+    if (courselist_ptr == NULL){
+        perror("malloc for courselist_ptr");
+        exit(1);
+    }
     int i = 0;
     while (fgets(this_line, INPUT_BUFFER_SIZE, input_stream) != NULL){
         Course *course = (Course*)malloc(sizeof(Course));
+        if (course == NULL){
+            perror("malloc for cousrse");
+            exit(1);
+        }
         this_line[6] = '\0';
         strcpy(course->code, this_line);
         course->description = (char*)malloc(sizeof(char) * INPUT_BUFFER_SIZE);
+        if (course == NULL){
+            perror("malloc for course description");
+            exit(1);
+        }
         strcpy(course->description, this_line + 7);
         course->head = NULL;
         course->tail = NULL;
