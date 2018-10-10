@@ -483,6 +483,7 @@ int config_course_list(Course **courselist_ptr, char *config_filename) {
         course->tail = NULL;
         *((*courselist_ptr) + i) = *course;
         i++;
+        free(course);
     }
     free(this_line);
     fclose(input_stream);
