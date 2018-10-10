@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
     }
 
     // Clean up: you need to do this!
-    for (int i = 0; i < width; i++){
+    for (int i = 0; i < height; i++){
         free(pixels[i]);
     }
     free(pixels);
