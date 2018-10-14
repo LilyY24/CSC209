@@ -7,14 +7,22 @@ add_student Jen CSC108
 add_student Paul CSC209
 add_student Diane CSC108
 add_student Steve CSC209
+add_student s1 CSC165
+add_student s2 CSC148
+add_student s3 CSC108
 next Elaine
 sleep
 sleep
+give_up Diane
+stats_by_course CSC108
 next Stathis
 sleep
-next Huiting CSC209
+next Huiting CSC165
+print_currently_serving
+next Elaine CSC165
 sleep
-next Demetres CSC209
+next Demetres CSC148
+next Stathis CSC108
 print_currently_serving
 print_all_queues
 stats_by_course CSC108
