@@ -335,13 +335,13 @@ int take_next_course(char *ta_name, Ta *ta_list, Student **stu_list_ptr, char *c
     }
     Student *cur = *stu_list_ptr;
     while (cur != NULL){
-        if (cur->course == course){
+        if (strcmp(cur->course->code, course->code) == 0){
             ta->current_student = cur;
             cur->course->wait_time += difftime(time(NULL), *(cur->arrival_time));
             *(cur->arrival_time) = time(NULL);
             remove_student(stu_list_ptr, cur);
             cur->course->head = cur->next_course;
-            if (cur->course->tail == cur){
+            if (cur->course->head == NULL){
                 cur->course->tail = NULL;
             }
             return 0;
@@ -483,6 +483,7 @@ int config_course_list(Course **courselist_ptr, char *config_filename) {
         course->tail = NULL;
         *((*courselist_ptr) + i) = *course;
         i++;
+        //Is this right?
         free(course);
     }
     free(this_line);
