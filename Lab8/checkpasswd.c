@@ -24,8 +24,56 @@ int main(void) {
       perror("fgets");
       exit(1);
   }
-  
 
+  int fd[2];
+  int r;
+  if (pipe(fd) == -1) {
+      perror("pipe");
+      exit(1);
+  }
+
+  r = fork();
+  if (r > 0) {
+      if (close(fd[0]) == -1) {
+          perror("close");
+          exit(1);
+      }
+      if (write(fd[1], user_id, MAXLINE) == -1) {
+          perror("write to pipe");
+          exit(1);
+      }
+      if (write(fd[1], password, MAXLINE) == -1) {
+          perror("write to pipe");
+          exit(1);
+      }
+      int status;
+      wait(&status);
+      if (WIFEXITED(status)){
+          if (WEXITSTATUS(status) == 0){
+              printf(SUCCESS);
+          } else if (WEXITSTATUS(status) == 2) {
+              printf(INVALID);
+          } else if (WEXITSTATUS(status) == 3) {
+              printf(NO_USER);
+          }
+
+      }
+
+  } else {
+      if (close(fd[1]) == -1) {
+          perror("close");
+          exit(1);
+      }
+      if (dup2(fd[0], fileno(stdin)) == -1) {
+          perror("dup2");
+          exit(1);
+      }
+      if (close(fd[0]) == -1) {
+          perror("close");
+          exit(1);
+      } 
+      execl("./validate", "validate");
+  }
 
   return 0;
 }
