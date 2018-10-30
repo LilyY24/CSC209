@@ -72,7 +72,7 @@ int main(void) {
           perror("close");
           exit(1);
       } 
-      execl("./validate", "validate");
+      execl("./validate", "validate", NULL);
   }
 
   return 0;
