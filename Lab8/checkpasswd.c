@@ -43,13 +43,13 @@ int main(void) {
         }
         char *newline = strchr(user_id, '\n');
         *(newline + 1) = '\0';
-        if (write(fd[1], user_id, strlen(user_id)) == -1) {
+        if (write(fd[1], user_id, MAX_PASSWORD) == -1) {
             perror("write to pipe");
             exit(1);
         }
         newline = strchr(password, '\n');
         *(newline + 1) = '\0';
-        if (write(fd[1], password, strlen(password)) == -1) {
+        if (write(fd[1], password, MAX_PASSWORD) == -1) {
             perror("write to pipe");
             exit(1);
         }
@@ -66,7 +66,7 @@ int main(void) {
         }
 
     } else {
-      
+
         if (dup2(fd[0], fileno(stdin)) == -1) {
             perror("dup2");
             exit(1);
