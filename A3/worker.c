@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <ctype.h>
 
 #include "freq_list.h"
 #include "worker.h"
@@ -17,6 +18,12 @@ Node *find_node(char *word, Node *head);
  * Return the number of file that has non-zero word frenquency.
  */ 
 int find_file_num(Node *target);
+
+/*
+ * Return a pointer to the string where all trailing whitespaces
+ * of given word are removed.
+ */
+char* trim(char *word);
 
 /*
  * Return an array of FreqRecoed elements for the given word. End of the valid
@@ -64,7 +71,35 @@ void print_freq_records(FreqRecord *frp) {
 /* Complete this function for Task 2 including writing a better comment.
 */
 void run_worker(char *dirname, int in, int out) {
-    return;
+    Node *head = NULL;
+    char **filenames = init_filenames();
+    char *listfile = "/index";
+    char *namefile = "/filenames";
+    char listpath[PATHLENGTH];
+    char namepath[PATHLENGTH];
+    strncpy(listpath, dirname, PATHLENGTH);
+    strncat(listpath, listfile, PATHLENGTH - strlen(listpath));
+    listpath[PATHLENGTH - 1] = '\0';
+    strncpy(namepath, dirname, PATHLENGTH);
+    strncat(namepath, namefile, PATHLENGTH - strlen(namepath));
+    namepath[PATHLENGTH - 1] = '\0';
+    
+    read_list(listpath, namepath, &head, filenames);
+    char word[MAXWORD];
+    /*TODO: Is it correct to use sizeof()? Is the read correct? */
+    while (read(in, word, MAXWORD * sizeof(char)) > 0) {
+        FreqRecord *result = get_word(trim(word), head, filenames);
+        
+        int i = 0;
+        while (result != NULL && result[i].freq != 0) {
+            if (write(out, result + i, sizeof(FreqRecord)) == -1) {
+                perror("Write to out");
+                exit(1);
+            }
+            i++;
+        }
+    }
+
 }
 
 //Following is the implementation of helper function
@@ -90,4 +125,16 @@ int find_file_num(Node *target) {
         }
     }
     return result;
+}
+
+char* trim(char *word) {
+    while (isspace(*word)){
+        word++;
+    }
+    int len = strlen(word);
+    while (len > 0 && isspace(word[len-1])) {
+        word[len-1] = '\0';
+        len--;
+    }
+    return word;
 }
