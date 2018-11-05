@@ -26,6 +26,10 @@ FreqRecord *get_word(char *word, Node *head, char **file_names) {
     Node *target = find_node(word, head);
     int file_num = find_file_num(target);
     FreqRecord *result = (FreqRecord*)malloc(sizeof(FreqRecord) * (file_num + 1));
+    if (result == NULL) {
+        perror("malloc for get_word");
+        exit(1);
+    }
     if (target == NULL) {
         result[0].freq = 0;
         result[0].filename[0] = '\0';
