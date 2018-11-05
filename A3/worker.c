@@ -26,6 +26,11 @@ FreqRecord *get_word(char *word, Node *head, char **file_names) {
     Node *target = find_node(word, head);
     int file_num = find_file_num(target);
     FreqRecord *result = (FreqRecord*)malloc(sizeof(FreqRecord) * (file_num + 1));
+    if (target == NULL) {
+        result[0].freq = 0;
+        result[0].filename[0] = '\0';
+        return result;
+    }
     int k = 0;
     for (int i = 0; i < MAXFILES; i++) {
         if (target->freq[i] != 0) {
@@ -35,8 +40,8 @@ FreqRecord *get_word(char *word, Node *head, char **file_names) {
             k++;
         }
     }
-    result[file_num].freq = 0;
-    result[file_num].filename[0] = '\0';
+    result[k].freq = 0;
+    result[k].filename[0] = '\0';
     return result;   
 }
 
@@ -70,6 +75,9 @@ Node *find_node(char *word, Node *head) {
 }
 
 int find_file_num(Node *target) {
+    if (target == NULL){
+        return 0;
+    }
     int result = 0;
     for (int i = 0; i < MAXFILES; i++) {
         if (target->freq[i] != 0) {
