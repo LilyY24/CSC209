@@ -91,12 +91,15 @@ void run_worker(char *dirname, int in, int out) {
         FreqRecord *result = get_word(trim(word), head, filenames);
         
         int i = 0;
-        while (result != NULL && result[i].freq != 0) {
+        while (result != NULL) {
             if (write(out, result + i, sizeof(FreqRecord)) == -1) {
                 perror("Write to out");
                 exit(1);
             }
-            i++;
+            if (result[i].freq == 0) {
+                break;
+            }
+            i++;   
         }
     }
 
