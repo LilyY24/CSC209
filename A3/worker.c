@@ -63,6 +63,7 @@ void run_worker(char *dirname, int in, int out) {
     return;
 }
 
+//Following is the implementation of helper function
 Node *find_node(char *word, Node *head) {
     Node *cur = head;
     while (cur != NULL) {
