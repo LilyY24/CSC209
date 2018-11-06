@@ -139,6 +139,7 @@ int main(int argc, char **argv) {
         int cur_num = 0; // the current number of element in result array
         for (int k = 0; k < i; k++) {
             if (write(fdw[k][1], buffer, MAXWORD * sizeof(char)) == -1) {
+                printf("%d", k);
                 perror("write to pipe");
                 exit(1);
             }
