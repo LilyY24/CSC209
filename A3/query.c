@@ -161,7 +161,7 @@ int main(int argc, char **argv) {
                     qsort(result, cur_num, sizeof(FreqRecord), compare);
                     cur_num++;
                 } else {
-                    result[9] = temp;
+                    result[MAXRECORDS-1] = temp;
                     qsort(result, cur_num, sizeof(FreqRecord), compare);
                 }
             }
