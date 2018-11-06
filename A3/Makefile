@@ -24,3 +24,5 @@ clean :
 	-rm *.o indexer queryone printindex
 
 
+query : query.o freq_list.o worker.o
+	gcc ${FLAGS} -o $@ freq_list.o worker.o query.o

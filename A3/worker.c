@@ -141,3 +141,12 @@ char* trim(char *word) {
     }
     return word;
 }
+
+/*
+ * Compare function to used to sort FreqRecord in descending order
+ */
+int compare(const void *s1, const void *s2) {
+    FreqRecord *f1 = (FreqRecord*)s1;
+    FreqRecord *f2 = (FreqRecord*)s2;
+    return -(f1->freq - f2->freq);
+}
