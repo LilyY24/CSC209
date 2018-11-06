@@ -161,7 +161,6 @@ int main(int argc, char **argv) {
             }
         }
         print_freq_records(result);
-        printf("Cycle complete\n");
         if (closedir(dirp) < 0) {
             perror("closedir");
         }
