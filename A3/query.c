@@ -9,6 +9,8 @@
 
 #include "freq_list.h"
 #include "worker.h"
+// TODO: FIX DOCUMENTATION
+//TODO: In case index file missing, should it fail compeletely?
 
 /* A program to model calling run_worker and to test it. Notice that run_worker
  * produces binary output, so the output from this program to STDOUT will 
@@ -131,6 +133,10 @@ int main(int argc, char **argv) {
                         exit(1);
                     }
                     i++;
+                    if (i > MAXWORKERS) {
+                        fprintf(stderr, "Number of worker exceed MAXWORKER\n");
+                        exit(1);
+                    }
                 } 
             }
         }
