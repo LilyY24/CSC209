@@ -31,6 +31,11 @@ char* trim(char *word);
 void free_node(Node *head);
 
 /*
+ * Free the filenames array properly.
+ */ 
+void free_filenames(char **filenames);
+
+/*
  * Return an array of FreqRecoed elements for the given word. End of the valid
  * record is indicated by a FreqRecord with freq 0 and empty filename.
  */
@@ -110,7 +115,7 @@ void run_worker(char *dirname, int in, int out) {
         free(result);
     }
     free_node(head);
-    free(filenames);
+    free_filenames(filenames);
 }
 
 //Following is the implementation of helper function
