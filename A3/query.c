@@ -133,6 +133,21 @@ int main(int argc, char **argv) {
                         exit(1);
                     }
                     i++;
+                    // Reach Maximum number of worker, close file descriptors
+                    // and quit
+                    if (i == MAXWORKERS) {
+                        fprintf(stderr, "Maximum number of workers exceed!\n");
+                        for (int k = 0; k < i; k++) {
+                            if (close(fdw[k][1]) == -1) {
+                                perror("close");
+                                exit(1);
+                            }  
+                        }
+                        for (int k = 0; k < i; k++) {
+                            wait(NULL);
+                        }
+                        exit(1);
+                    }
                 } 
             }
         }
