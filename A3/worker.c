@@ -104,6 +104,8 @@ void run_worker(char *dirname, int in, int out) {
         // TODO: is this right?
         free(result);
     }
+    free(head);
+    free(filenames);
 }
 
 //Following is the implementation of helper function
