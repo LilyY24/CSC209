@@ -26,6 +26,11 @@ int find_file_num(Node *target);
 char* trim(char *word);
 
 /*
+ * Free the Node linked list at head.
+ */
+void free_node(Node *head);
+
+/*
  * Return an array of FreqRecoed elements for the given word. End of the valid
  * record is indicated by a FreqRecord with freq 0 and empty filename.
  */
@@ -104,7 +109,7 @@ void run_worker(char *dirname, int in, int out) {
         // TODO: is this right?
         free(result);
     }
-    free(head);
+    free_node(head);
     free(filenames);
 }
 
@@ -152,4 +157,23 @@ int compare(const void *s1, const void *s2) {
     FreqRecord *f1 = (FreqRecord*)s1;
     FreqRecord *f2 = (FreqRecord*)s2;
     return -(f1->freq - f2->freq);
+}
+
+void free_node(Node *head) {
+    Node *cur = head;
+    while (cur->next != NULL) {
+        Node *temp = cur;
+        cur = cur->next;
+        free(temp);
+    }
+    free(cur);
+}
+
+void free_filenames(char **filenames) {
+    int i = 0;
+    while (filenames[i] != NULL) {
+        free(filenames[i]);
+        i++;
+    }
+    free(filenames);
 }
