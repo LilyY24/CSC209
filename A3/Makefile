@@ -21,7 +21,7 @@ queryone : queryone.o worker.o ${OBJ}
 	gcc ${FLAGS} -c $<
 
 clean :
-	-rm *.o indexer queryone printindex
+	-rm *.o indexer queryone printindex query
 
 
 query : query.o freq_list.o worker.o
