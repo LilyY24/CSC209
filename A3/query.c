@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
             exit(1);
         }
         struct dirent *dp;
-        while ((dp = readdir(dirp)) != NULL && i < 10) {
+        while ((dp = readdir(dirp)) != NULL) {
             if (strcmp(dp->d_name, ".") == 0 ||
                 strcmp(dp->d_name, "..") == 0 ||
                 strcmp(dp->d_name, ".svn") == 0 ||
