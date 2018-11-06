@@ -135,6 +135,17 @@ int main(int argc, char **argv) {
                     i++;
                     if (i > MAXWORKERS) {
                         fprintf(stderr, "Number of worker exceed MAXWORKER\n");
+                        // Close all file descriptor
+                        for (int k = 0; k < i; k++) {
+                            if (close(fdw[k][1]) == -1) {
+                                perror("close");
+                                exit(1);
+                            }
+                            if (close(fdr[k][0]) == -1) {
+                                perror("close");
+                                exit(1);
+                            }
+                        }
                         for (int k = 0; k < i; k++) {
                             wait(NULL);
                         }
