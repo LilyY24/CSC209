@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <sys/wait.h>
 
 #include "freq_list.h"
 #include "worker.h"
