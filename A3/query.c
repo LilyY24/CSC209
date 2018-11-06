@@ -135,10 +135,10 @@ int main(int argc, char **argv) {
                     i++;
                     if (i > MAXWORKERS) {
                         fprintf(stderr, "Number of worker exceed MAXWORKER\n");
-                        exit(1);
                         for (int k = 0; k < i; k++) {
                             wait(NULL);
                         }
+                        exit(1);
                     }
                 } 
             }
