@@ -141,13 +141,13 @@ int main(int argc, char **argv) {
                                 perror("close");
                                 exit(1);
                             }
+                            for (int k = 0; k < i; k++) {
+                            wait(NULL);
+                            }
                             if (close(fdr[k][0]) == -1) {
                                 perror("close");
                                 exit(1);
                             }
-                        }
-                        for (int k = 0; k < i; k++) {
-                            wait(NULL);
                         }
                         exit(1);
                     }
