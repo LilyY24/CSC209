@@ -166,6 +166,10 @@ int main(int argc, char **argv) {
             int status;
             FreqRecord temp;
             wait(&status);
+            if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
+                fprintf(stderr, "An Error occured!\n");
+                exit(1);
+            }
             while(read(fdr[k][0], &temp, sizeof(FreqRecord)) > 0) {
                 if (cur_num < MAXRECORDS) {
                     result[cur_num] = temp;
