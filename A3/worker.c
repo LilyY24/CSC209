@@ -137,7 +137,7 @@ int find_file_num(Node *target) {
     return result;
 }
 
-char* trim(char *word) {
+char *trim(char *word) {
     while (isspace(*word)){
         word++;
     }
