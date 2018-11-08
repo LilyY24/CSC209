@@ -134,7 +134,7 @@ int main(int argc, char **argv) {
                     }
                     i++;
                     // Reach Maximum number of worker, close file descriptors
-                    // and quit
+                    // and quit after all child process quit
                     if (i == MAXWORKERS) {
                         fprintf(stderr, "Maximum number of workers exceed!\n");
                         for (int k = 0; k < i; k++) {
