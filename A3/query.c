@@ -9,14 +9,12 @@
 
 #include "freq_list.h"
 #include "worker.h"
-// TODO: FIX DOCUMENTATION
-//TODO: In case index file missing, should it fail compeletely?
 
-/* A program to model calling run_worker and to test it. Notice that run_worker
- * produces binary output, so the output from this program to STDOUT will 
- * not be human readable.  You will need to work out how to save it and view 
- * it (or process it) so that you can confirm that your run_worker 
- * is working properly.
+/* 
+ * Read a word from stdin. For each entry in the directory, eliminate
+ *. and .., and check to make sure that the entry is a directory, then 
+ * call run_worker to process the index file contained in the directory. 
+ * The process repeat until stdin is closed.   
  */
 int main(int argc, char **argv) {
     char ch;
@@ -34,15 +32,6 @@ int main(int argc, char **argv) {
         }
     }
 
-    /* For each entry in the directory, eliminate . and .., and check
-     * to make sure that the entry is a directory, then call run_worker
-     * to process the index file contained in the directory.
-     * Note that this implementation of the query engine iterates
-     * sequentially through the directories, and will expect to read
-     * a word from standard input for each index it checks.
-     */
-    //TODO: need to handle the exception where worker is more than 10;
-    
     char buffer[MAXWORD];
     FreqRecord result[MAXRECORDS];
     while (fgets(buffer, MAXWORD, stdin) != NULL){
