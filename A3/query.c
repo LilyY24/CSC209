@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
     
     char buffer[MAXWORD];
     FreqRecord result[MAXRECORDS];
-    while (fgets(buffer, MAXWORD * sizeof(char), stdin) != NULL){
+    while (fgets(buffer, MAXWORD, stdin) != NULL){
         int i = 0;
         // Use as read from child to master
         int fdr[MAXWORKERS][2];
