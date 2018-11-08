@@ -20,12 +20,6 @@ Node *find_node(char *word, Node *head);
 int find_file_num(Node *target);
 
 /*
- * Return a pointer to the string where all trailing whitespaces
- * of given word are removed.
- */
-char* trim(char *word);
-
-/*
  * Free the Node linked list at head.
  */
 void free_node(Node *head);

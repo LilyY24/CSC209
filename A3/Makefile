@@ -25,3 +25,6 @@ clean :
 
 query : query.o freq_list.o worker.o
 	gcc ${FLAGS} -o $@ freq_list.o worker.o query.o
+
+testpart1: testpart1.o freq_list.o worker.o
+	gcc ${FLAGS} -o $@ testpart1.o freq_list.o worker.o
