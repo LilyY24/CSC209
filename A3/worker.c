@@ -173,10 +173,8 @@ void free_node(Node *head) {
 }
 
 void free_filenames(char **filenames) {
-    int i = 0;
-    while (filenames[i] != NULL) {
+    for (int i = 0; i < MAXFILES; i++) {
         free(filenames[i]);
-        i++;
     }
     free(filenames);
 }
