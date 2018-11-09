@@ -21,6 +21,8 @@ int main(int argc, char **argv) {
     char path[PATHLENGTH];
     char *startdir = ".";
 
+    int fdw[MAXWORKERS][2];
+    int fdr[MAXWORKERS][2];
     /* this models using getopt to process command-line flags and arguments */
     while ((ch = getopt(argc, argv, "d:")) != -1) {
         switch (ch) {
@@ -28,153 +30,132 @@ int main(int argc, char **argv) {
             startdir = optarg;
             break;
         default:
-            break;
-        }
-    }
-
-    char buffer[MAXWORD];
-    FreqRecord result[MAXRECORDS];
-    while (fgets(buffer, MAXWORD, stdin) != NULL){
-        int i = 0;
-        // Use as read from child to master
-        int fdr[MAXWORKERS][2];
-        // Use as write from master to child
-        int fdw[MAXWORKERS][2];
-        // Open the directory provided by the user (or current working directory)
-        DIR *dirp;
-        if ((dirp = opendir(startdir)) == NULL) {
-            perror("opendir");
+            fprintf(stderr, "Usage: queryone [-d DIRECTORY_NAME]\n");
             exit(1);
         }
-        struct dirent *dp;
-        while ((dp = readdir(dirp)) != NULL) {
-            if (strcmp(dp->d_name, ".") == 0 ||
-                strcmp(dp->d_name, "..") == 0 ||
-                strcmp(dp->d_name, ".svn") == 0 ||
-                strcmp(dp->d_name, ".git") == 0) {
-                    continue;
-            }
+    }
 
-            strncpy(path, startdir, PATHLENGTH);
-            strncat(path, "/", PATHLENGTH - strlen(path));
-            strncat(path, dp->d_name, PATHLENGTH - strlen(path));
-            path[PATHLENGTH - 1] = '\0';
+    // Open the directory provided by the user (or current working directory)
+    DIR *dirp;
+    if ((dirp = opendir(startdir)) == NULL) {
+        perror("opendir");
+        exit(1);
+    }
 
-            struct stat sbuf;
-            if (stat(path, &sbuf) == -1) {
-                // This should only fail if we got the path wrong
-                // or we don't have permissions on this entry.
-                perror("stat");
+    /* For each entry in the directory, eliminate . and .., and check
+     * to make sure that the entry is a directory, then call run_worker
+     * to process the index file contained in the directory.
+     * Note that this implementation of the query engine iterates
+     * sequentially through the directories, and will expect to read
+     * a word from standard input for each index it checks.
+     */
+    struct dirent *dp;
+    int i = 0;
+    while ((dp = readdir(dirp)) != NULL) {
+        if (strcmp(dp->d_name, ".") == 0 ||
+            strcmp(dp->d_name, "..") == 0 ||
+            strcmp(dp->d_name, ".svn") == 0 ||
+            strcmp(dp->d_name, ".git") == 0) {
+                continue;
+        }
+
+        strncpy(path, startdir, PATHLENGTH);
+        strncat(path, "/", PATHLENGTH - strlen(path));
+        strncat(path, dp->d_name, PATHLENGTH - strlen(path));
+        path[PATHLENGTH - 1] = '\0';
+
+        struct stat sbuf;
+        if (stat(path, &sbuf) == -1) {
+            // This should only fail if we got the path wrong
+            // or we don't have permissions on this entry.
+            perror("stat");
+            exit(1);
+        }
+
+        // Only call run_worker if it is a directory
+        // Otherwise ignore it.
+        if (S_ISDIR(sbuf.st_mode)) {
+            if (pipe(fdr[i]) == -1 || pipe(fdw[i]) == -1) {
+                perror("pipe for fdr");
                 exit(1);
             }
-
-            // Only call run_worker if it is a directory
-            // Otherwise ignore it.
-            if (S_ISDIR(sbuf.st_mode)) {
-                if (pipe(fdr[i]) == -1) {
-                    perror("pipe");
+            int r = fork();
+            if (r == 0) {
+                //close all fd of open for master process and un-used fd for 
+                // this i
+                for (int k = 0; k <= i; k++) {
+                    if (close(fdw[k][1]) == -1) {
+                        perror("close for child");
+                        exit(1);
+                    }
+                    if (close(fdr[k][0]) == -1) {
+                        perror("close for child");
+                        exit(1);
+                    }
+                }
+                run_worker(path, fdw[i][0], fdr[i][1]);
+                exit(0);
+            } else if (r > 0) {
+                if (close(fdw[i][0]) == -1 || close(fdr[i][1]) == -1) {
+                    perror("close");
                     exit(1);
                 }
-                if (pipe(fdw[i]) == -1) {
-                    perror("pipe");
+                i++;
+                if (i > MAXWORKERS) {
+                    fprintf(stderr, "Maximum number of workers exceed!");
                     exit(1);
                 }
-                int r = fork();
-                if (r < 0) {
-                    perror("fork");
-                    exit(1);
-                } else if (r == 0) {
-                    // Close all the readend and writeend of its parent has 
-                    // opened so far.
-                    for (int j = 0; j < i; j++) {
-                        if (close(fdr[j][0]) == -1) {
-                            perror("close");
-                            exit(1);
-                        }
-                        if (close(fdw[j][1]) == -1) {
-                            perror("close");
-                            exit(1);
-                        }
-                    }
-                    if (close(fdw[i][1]) == -1) {
-                        perror("close");
-                        exit(1);
-                    }
-                    if (close(fdr[i][0] == -1)) {
-                        perror("close");
-                        exit(1);
-                    }
-                    run_worker(path, fdw[i][0], fdr[i][1]);
-                    // if run_worker returns, that means fd[i][0] is closed
-                    // TODO: is the above right?
-                    if (close(fdr[i][1]) == -1) {
-                        perror("close");
-                        exit(1);
-                    }
-                    exit(0);
-                } else {
-                    if (close(fdw[i][0]) == -1) {
-                        perror("close");
-                        exit(1);
-                    } 
-                    if (close(fdr[i][1]) == -1) {
-                        perror("close");
-                        exit(1);
-                    }
-                    i++;
-                    // Reach Maximum number of worker, close file descriptors
-                    // and quit after all child process quit
-                    if (i == MAXWORKERS) {
-                        fprintf(stderr, "Maximum number of workers exceed!\n");
-                        for (int k = 0; k < i; k++) {
-                            if (close(fdw[k][1]) == -1) {
-                                perror("close");
-                                exit(1);
-                            }  
-                        }
-                        for (int k = 0; k < i; k++) {
-                            wait(NULL);
-                        }
-                        exit(1);
-                    }
-                } 
-            }
-        }
-        int cur_num = 0; // the current number of element in result array
-        for (int k = 0; k < i; k++) {
-            if (write(fdw[k][1], buffer, MAXWORD * sizeof(char)) == -1) {
-                perror("write to pipe");
+            } else {
+                perror("fork");
                 exit(1);
             }
-            if (close(fdw[k][1]) == -1) {
-                perror("close");
-                exit(1);
-            }
-        }
-        for (int k = 0; k < i; k++) {
-            int status;
-            FreqRecord temp;
-            wait(&status);
-            if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
-                fprintf(stderr, "An Error occured!\n");
-                exit(1);
-            }
-            while(read(fdr[k][0], &temp, sizeof(FreqRecord)) > 0) {
-                if (cur_num < MAXRECORDS) {
-                    result[cur_num] = temp;
-                    qsort(result, cur_num, sizeof(FreqRecord), compare);
-                    cur_num++;
-                } else {
-                    result[MAXRECORDS-1] = temp;
-                    qsort(result, cur_num, sizeof(FreqRecord), compare);
-                }
-            }
-        }
-        print_freq_records(result);
-        if (closedir(dirp) < 0) {
-            perror("closedir");
         }
     }
-    
+    char buffer[MAXWORD];
+    while (fgets(buffer, MAXWORD, stdin) != NULL) {
+        FreqRecord result[MAXRECORDS];
+        int result_num = 0;
+        for (int k = 0; k < i; k++) {
+            if (write(fdw[k][1], buffer, sizeof(char) * MAXWORD) == -1) {
+                perror("write to child");
+                exit(1);
+            }
+        }
+        for (int k = 0; k < i; k++) {
+            FreqRecord temp;
+            if (read(fdr[k][0], &temp, sizeof(FreqRecord)) == -1) {
+                perror("read from child");
+                exit(1);
+            }
+            while (temp.freq != 0) {
+                if (result_num < MAXRECORDS) {
+                    result[result_num] = temp;
+                    result_num++;
+                    qsort(result, result_num, sizeof(FreqRecord), compare);
+                } else {
+                    if (result[MAXRECORDS - 1].freq < temp.freq) {
+                        result[MAXRECORDS - 1] = temp;
+                        qsort(result, MAXRECORDS, sizeof(FreqRecord), compare);
+                    }
+                }
+                if (read(fdr[k][0], &temp, sizeof(FreqRecord)) == -1) {
+                    perror("read from child");
+                    exit(1);
+                }
+            }
+        }
+        if (result_num == MAXRECORDS) {
+            result[result_num - 1].freq = 0;
+        } else {
+            FreqRecord temp;
+            temp.freq = 0;
+            result[result_num] = temp;
+        }
+        print_freq_records(result);
+    }
+
+    if (closedir(dirp) < 0)
+        perror("closedir");
+
     return 0;
 }

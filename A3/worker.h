@@ -2,7 +2,7 @@
 #define WORKER_H
 
 #define PATHLENGTH 128
-#define MAXRECORDS 100
+#define MAXRECORDS 3
 
 #define MAXWORKERS 10
 
