@@ -153,7 +153,25 @@ int main(int argc, char **argv) {
         }
         print_freq_records(result);
     }
-
+    // close all file descriptor and wait for all child process to exit
+    for (int k = 0; k < i; k++) {
+        if (close(fdw[k][1]) == -1) {
+            perror("close");
+            exit(1);
+        }
+        if (close(fdr[k][0]) == -1) {
+            perror("close");
+            exit(1);
+        }
+    }
+    for (int k = 0; k < i; k++) {
+        int status;
+        wait(&status);
+        if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
+            fprintf(stderr, "Child process exit abnormally");
+            exit(1);
+        }
+    }
     if (closedir(dirp) < 0)
         perror("closedir");
 
