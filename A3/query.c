@@ -102,7 +102,7 @@ int main(int argc, char **argv) {
                 }
                 i++;
                 if (i > MAXWORKERS) {
-                    fprintf(stderr, "Maximum number of workers exceed!");
+                    fprintf(stderr, "Maximum number of workers exceed!\n");
                     exit(1);
                 }
             } else {
@@ -168,7 +168,7 @@ int main(int argc, char **argv) {
         int status;
         wait(&status);
         if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
-            fprintf(stderr, "Child process exit abnormally");
+            fprintf(stderr, "Child process exit abnormally\n");
             exit(1);
         }
     }
