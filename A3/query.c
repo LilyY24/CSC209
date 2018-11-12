@@ -113,7 +113,7 @@ int main(int argc, char **argv) {
     }
     char buffer[MAXWORD];
     while (fgets(buffer, MAXWORD, stdin) != NULL) {
-        FreqRecord result[MAXRECORDS];
+        FreqRecord result[MAXRECORDS + 1];
         int result_num = 0;
         for (int k = 0; k < i; k++) {
             if (write(fdw[k][1], buffer, sizeof(char) * MAXWORD) == -1) {
@@ -144,13 +144,10 @@ int main(int argc, char **argv) {
                 }
             }
         }
-        if (result_num == MAXRECORDS) {
-            result[result_num - 1].freq = 0;
-        } else {
-            FreqRecord temp;
-            temp.freq = 0;
-            result[result_num] = temp;
-        }
+        // Add a sentinel at the end of last valid record. 
+        FreqRecord temp;
+        temp.freq = 0;
+        result[result_num] = temp;
         print_freq_records(result);
     }
     // close all file descriptor and wait for all child process to exit
