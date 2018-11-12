@@ -111,6 +111,10 @@ int main(int argc, char **argv) {
             }
         }
     }
+    if (i == 0) {
+        fprintf(stderr, "There is no sub-directory in the given directory\n");
+        exit(1);
+    }
     char buffer[MAXWORD];
     while (fgets(buffer, MAXWORD, stdin) != NULL) {
         FreqRecord result[MAXRECORDS + 1];
