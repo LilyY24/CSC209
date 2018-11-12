@@ -111,6 +111,7 @@ int main(int argc, char **argv) {
             }
         }
     }
+    // print to stderr and exit if ther is not any subdirectory.
     if (i == 0) {
         fprintf(stderr, "There is no sub-directory in the given directory\n");
         exit(1);
