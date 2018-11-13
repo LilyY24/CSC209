@@ -33,6 +33,7 @@ int main(int argc, char **argv) {
     while (fgets(temp, MAXWORD, stdin) != NULL) {
         FreqRecord *result = get_word(trim(temp), head, filenames);
         print_freq_records(result);
+        free(result);
     }
     free_filenames(filenames);
     free_node(head);
