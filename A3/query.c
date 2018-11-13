@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
         // Otherwise ignore it.
         if (S_ISDIR(sbuf.st_mode)) {
             if (pipe(fdr[i]) == -1 || pipe(fdw[i]) == -1) {
-                perror("pipe for fdr");
+                perror("pipe for fdr or fdw");
                 exit(1);
             }
             int r = fork();
@@ -85,11 +85,11 @@ int main(int argc, char **argv) {
                 // this i
                 for (int k = 0; k <= i; k++) {
                     if (close(fdw[k][1]) == -1) {
-                        perror("close for child");
+                        perror("close in child");
                         exit(1);
                     }
                     if (close(fdr[k][0]) == -1) {
-                        perror("close for child");
+                        perror("close in child");
                         exit(1);
                     }
                 }
@@ -97,7 +97,7 @@ int main(int argc, char **argv) {
                 exit(0);
             } else if (r > 0) {
                 if (close(fdw[i][0]) == -1 || close(fdr[i][1]) == -1) {
-                    perror("close");
+                    perror("close in child");
                     exit(1);
                 }
                 i++;
@@ -158,11 +158,11 @@ int main(int argc, char **argv) {
     // close all file descriptor and wait for all child process to exit
     for (int k = 0; k < i; k++) {
         if (close(fdw[k][1]) == -1) {
-            perror("close");
+            perror("close for fdw");
             exit(1);
         }
         if (close(fdr[k][0]) == -1) {
-            perror("close");
+            perror("close for fdr");
             exit(1);
         }
     }
