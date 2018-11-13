@@ -93,7 +93,6 @@ void run_worker(char *dirname, int in, int out) {
     /*TODO: Is it correct to use sizeof()? Is the read correct? */
     while (read(in, word, MAXWORD * sizeof(char)) > 0) {
         FreqRecord *result = get_word(trim(word), head, filenames);
-        
         int i = 0;
         while (result[i].freq != 0) {
             if (write(out, result + i, sizeof(FreqRecord)) == -1) {
@@ -120,7 +119,7 @@ void run_worker(char *dirname, int in, int out) {
 Node *find_node(char *word, Node *head) {
     Node *cur = head;
     while (cur != NULL) {
-        if (strcmp(cur->word, word) == 0){
+        if (strcmp(cur->word, word) == 0) {
             return cur;
         }
         cur = cur->next;
@@ -129,7 +128,7 @@ Node *find_node(char *word, Node *head) {
 }
 
 int find_file_num(Node *target) {
-    if (target == NULL){
+    if (target == NULL) {
         return 0;
     }
     int result = 0;
@@ -142,7 +141,7 @@ int find_file_num(Node *target) {
 }
 
 char *trim(char *word) {
-    while (isspace(*word)){
+    while (isspace(*word)) {
         word++;
     }
     int len = strlen(word);
