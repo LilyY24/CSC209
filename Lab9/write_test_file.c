@@ -19,10 +19,14 @@ int main(int argc, char **argv) {
     }
 
     // TODO: complete this program according its description above.
-
-
-
-
+    int i = 0;
+    int nums[100];
+    while (i < 100) {
+        nums[i] = random() % 100;
+        printf("%d\n", nums[i]);
+        i++;
+    }
+    fwrite(nums, sizeof(int), 100, fp);
 
     fclose(fp);
     return 0;
