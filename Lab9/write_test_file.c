@@ -23,7 +23,6 @@ int main(int argc, char **argv) {
     int nums[100];
     while (i < 100) {
         nums[i] = random() % 100;
-        printf("%d\n", nums[i]);
         i++;
     }
     fwrite(nums, sizeof(int), 100, fp);
