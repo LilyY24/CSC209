@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
     for (;;) {
         fseek(fp, random() % 100 * sizeof(int), SEEK_SET);
         fread(&num, sizeof(int), 1, fp);
-        fprintf(stderr, "%d\n", num);
+        fprintf(stderr, "%d", num);
         num_reads++;
     }
     return 1; // something is wrong if we ever get here!
