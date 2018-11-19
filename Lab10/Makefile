@@ -1,4 +1,4 @@
-PORT=30001
+PORT=50271
 CFLAGS = -DPORT=$(PORT) -g -Wall -std=gnu99
 
 all: readserver randclient bufserver
