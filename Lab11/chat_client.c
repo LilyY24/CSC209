@@ -71,7 +71,10 @@ int main(void) {
             buf[num_read] = '\0';
             printf("Received from server: %s", buf);
         } else if (FD_ISSET(STDIN_FILENO, &fds)) {
-            read(STDIN_FILENO, buf, BUF_SIZE);
+            int num_read = read(STDIN_FILENO, buf, BUF_SIZE);
+            if (num_read == 0) {
+                break;
+            }
             int nwrite = write(sock_fd, buf, BUF_SIZE);
             if (nwrite != BUF_SIZE) {
                 perror("Write to server");
