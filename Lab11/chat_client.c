@@ -68,6 +68,9 @@ int main(void) {
 
         if (FD_ISSET(sock_fd, &fds)) {
             int num_read = read(sock_fd, buf, BUF_SIZE);
+            if (num_read == 0) {
+                break;
+            }
             buf[num_read] = '\0';
             printf("Received from server: %s", buf);
         } else if (FD_ISSET(STDIN_FILENO, &fds)) {
@@ -75,6 +78,15 @@ int main(void) {
             if (num_read == 0) {
                 break;
             }
+            //make sure the string is null terminated.
+            for (int i = 0; i < BUF_SIZE - 1; i++) {
+                if (buf[i] == '\n') {
+                    buf[i+1] = '\0';
+                }
+            }
+            // Make sure the string is terminated even if there is no \n.
+            buf[BUF_SIZE - 1] = '\0';
+            
             int nwrite = write(sock_fd, buf, BUF_SIZE);
             if (nwrite != BUF_SIZE) {
                 perror("Write to server");
