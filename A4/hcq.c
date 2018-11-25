@@ -220,33 +220,133 @@ int next_overall(char *ta_name, Ta **ta_list_ptr, Student **stu_list_ptr) {
 }
 
 
-// print a message about which TAs are serving which students
-void print_currently_serving(Ta *ta_list) {
+/*
+ * return a dynamically allcocated string of which TAs 
+ * are serving which students.
+ */  
+char *print_currently_serving(Ta *ta_list) {
     if (ta_list == NULL) {
-        printf("No TAs are currently working.\n");
-        return;
+        char *line = "No TAs are currently working.\r\n";
+        int length = strlen(line);
+        char *result = malloc((length + 1) * sizeof(char));
+        strcpy(result, line);
+        result[length] = '\0'; 
+        return result;
     }
-    while (ta_list != NULL) {
-       if (ta_list->current_student != NULL) {
-           printf("TA: %s is serving %s.\n",
-                ta_list->name,
-                ta_list->current_student->name);
-       } else {
-           printf("TA: %s has no student\r\n", ta_list->name);
-       }
-       ta_list = ta_list->next;
+    Ta *cur = ta_list;
+    int length = 0;
+    // Calculate length in the first loop
+    while (cur != NULL) {
+        char *buf;
+        if (cur->current_student != NULL) {
+            char *thisline = "TA: %s is serving %s.\r\n";
+            int error = asprintf(&buf, thisline, cur->name,
+                                                 cur->current_student->name);
+            if (error == -1) {
+                perror("asprintf");
+                exit(1);
+            }
+            length += strlen(buf);
+            free(buf);
+        } else {
+            char *thisline = "TA: %s has no student\r\n";
+            int error = asprintf(&buf, thisline, cur->name);
+            if (error == -1) {
+                perror("asprintf");
+                exit(1);
+            }
+            length += strlen(buf);
+            free(buf);
+        }
+        cur = cur->next;
     }
+
+    char *result = malloc(sizeof(char) * (length + 1));
+    //Builg the string in the second loop
+    cur = ta_list;
+    while (cur != NULL) {
+        char *buf;
+        if (cur->current_student != NULL) {
+            char *thisline = "TA: %s is serving %s.\r\n";
+            int error = asprintf(&buf, thisline, cur->name,
+                                                 cur->current_student->name);
+            if (error == -1) {
+                perror("asprintf");
+                exit(1);
+            }
+            // No need to use strncpy since length has already been calculated
+            strcat(result,buf);
+            free(buf);
+        } else {
+            char *thisline = "TA: %s has no student\r\n";
+            int error = asprintf(&buf, thisline, cur->name);
+            if (error == -1) {
+                perror("asprintf");
+                exit(1);
+            }
+            strcat(result, buf);
+            free(buf);
+        }
+        cur = cur->next;
+    }
+    result[length] = '\0';
+    return result;
+    // while (ta_list != NULL) {
+    //    if (ta_list->current_student != NULL) {
+    //        printf("TA: %s is serving %s.\n",
+    //             ta_list->name,
+    //             ta_list->current_student->name);
+    //    } else {
+    //        printf("TA: %s has no student\r\n", ta_list->name);
+    //    }
+    //    ta_list = ta_list->next;
+    // }
 }
 
-/*  Print a list of all the students in the queue. This does not
- *    print students currently being served. 
+/*  Return a dynamically allocated string of list of all the students 
+ *  in the queue. The list does not include students currently being served. 
  */ 
-void print_full_queue(Student *stu_list) {
-    printf("Full Queue\n");
-    while (stu_list != NULL) {
-        printf("Student %s:%s\n",stu_list->name, stu_list->course->code);
-        stu_list = stu_list->next_overall;
+char *print_full_queue(Student *stu_list) {
+    char *header = "Full Queue\r\n";
+    int length = strlen(header);
+    //First loop, calculate the space needed.
+    Student *cur = stu_list;
+    while (cur != NULL) {
+        char *thisline = "Student %s:%s\r\n";
+        char *buf;
+        int error = asprintf(&buf, thisline, cur->name, cur->course->code);
+        if (error == -1) {
+            perror("asprintf");
+            exit(1);
+        }
+        length += strlen(buf);
+        free(buf);
+        cur = cur->next_overall;
     }
+    // TODO:Check how the end of string whether it should be \r\n\0?
+    char *result = malloc(sizeof(char) * (length + 1));
+    strcpy(result, header);
+    // Second loop to construct the string
+    cur = stu_list;
+    while (cur != NULL) {
+        char *thisLine = "Student %s:%s\r\n";
+        char *buf;
+        int error = asprintf(&buf, thisLine, cur->name, cur->course->code);
+        if (error == -1) {
+            perror("asprintf");
+            exit(1);
+        }
+        strcat(result, buf);
+        free(buf);
+        cur = cur->next_overall;
+    }
+    result[length] = '\0';
+    return result;
+    // printf("Full Queue\n");
+    // while (stu_list != NULL) {
+    //     printf("Student %s:%s\n",stu_list->name, stu_list->course->code);
+    //     stu_list = stu_list->next_overall;
+    // }
 }
 
 
