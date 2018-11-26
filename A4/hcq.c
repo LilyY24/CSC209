@@ -168,6 +168,7 @@ int remove_ta(Ta **ta_list_ptr, char *ta_name) {
             free(tofree);
             return 0;
         }
+        head = head->next;
     }
     // if we reach here, the ta_name was not in the list
     return 1;
