@@ -39,64 +39,24 @@ int main(void) {
 
     // Read input from the user, send it to the server, and then accept the
     // echo that returns. Exit when stdin is closed.
-    // Write the user name to server on connected.
     char buf[BUF_SIZE + 1];
-    int name_read = read(STDIN_FILENO, buf, BUF_SIZE);
-    buf[name_read] = '\0';
-    int name_write = write(sock_fd, buf, BUF_SIZE);
-    if (name_write != BUF_SIZE) {
-        perror("client: write name");
-        close(sock_fd);
-        exit(1);
-    }
-    int max_fd = STDIN_FILENO;
-    if (sock_fd > max_fd) {
-        max_fd = sock_fd;
-    }
-    fd_set all_fds;
-    FD_ZERO(&all_fds);
-    FD_SET(sock_fd, &all_fds);
-    FD_SET(STDIN_FILENO, &all_fds);
-
     while (1) {
-        fd_set fds = all_fds;
-        int nready = select(max_fd + 1, &fds, NULL, NULL, NULL);
-        if (nready == -1) {
-            perror("Client: select");
+        int num_read = read(STDIN_FILENO, buf, BUF_SIZE);
+        if (num_read == 0) {
+            break;
+        }
+        buf[num_read] = '\0';         
+
+        int num_written = write(sock_fd, buf, num_read);
+        if (num_written != num_read) {
+            perror("client: write");
+            close(sock_fd);
             exit(1);
         }
 
-        if (FD_ISSET(sock_fd, &fds)) {
-            int num_read = read(sock_fd, buf, BUF_SIZE);
-            if (num_read == 0) {
-                break;
-            }
-            buf[num_read] = '\0';
-            printf("Received from server: %s", buf);
-        } else if (FD_ISSET(STDIN_FILENO, &fds)) {
-            int num_read = read(STDIN_FILENO, buf, BUF_SIZE);
-            if (num_read == 0) {
-                break;
-            }
-            //make sure the string is null terminated.
-            for (int i = 0; i < BUF_SIZE - 1; i++) {
-                if (buf[i] == '\n') {
-                    buf[i+1] = '\0';
-                }
-            }
-            // Make sure the string is terminated even if there is no \n.
-            buf[BUF_SIZE - 1] = '\0';
-            
-            int nwrite = write(sock_fd, buf, BUF_SIZE);
-            if (nwrite != BUF_SIZE) {
-                perror("Write to server");
-                exit(1);
-            }
-        }
-        // Reset buf to all \0;
-        for (int i = 0; i < BUF_SIZE + 1; i++) {
-            buf[i] = '\0';
-        }
+        num_read = read(sock_fd, buf, BUF_SIZE);
+        buf[num_read] = '\0';
+        printf("Received from server: %s", buf);
     }
 
     close(sock_fd);

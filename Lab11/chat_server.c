@@ -57,30 +57,14 @@ int accept_connection(int fd, struct sockname *usernames) {
 int read_from(int client_index, struct sockname *usernames) {
     int fd = usernames[client_index].sock_fd;
     char buf[BUF_SIZE + 1];
-    char *username = usernames[client_index].username;
 
     int num_read = read(fd, &buf, BUF_SIZE);
     buf[num_read] = '\0';
-    
-    char result[BUF_SIZE + 1];
-    strcpy(result, username);
-    strcat(result, ":");
-    strcat(result, buf);
-    int length = strlen(username) + strlen(buf) + 1;
-    result[length] = '\0';
-    
-    if (num_read == 0) {
+    if (num_read == 0 || write(fd, buf, strlen(buf)) != strlen(buf)) {
         usernames[client_index].sock_fd = -1;
         return fd;
     }
 
-    int i = 0;
-    while (i < MAX_CONNECTIONS) {
-        if (usernames[i].sock_fd != -1) {
-            write(usernames[i].sock_fd, result, BUF_SIZE);
-        }
-        i++;
-    }
     return 0;
 }
 
@@ -144,22 +128,6 @@ int main(void) {
             int client_fd = accept_connection(sock_fd, usernames);
             if (client_fd > max_fd) {
                 max_fd = client_fd;
-            }
-            char *username = malloc(sizeof(char) * BUF_SIZE);
-            int name_read = read(client_fd, username, sizeof(char) * BUF_SIZE);
-            if (name_read < 0) {
-                perror("read name");
-                exit(1);
-            }
-            username[name_read-1] = '\0';
-            char *newline = strchr(username, '\n');
-            if (newline != NULL) {
-                *newline = '\0';
-            }
-            for (int i = 0; i < MAX_CONNECTIONS; i++) {
-                if (usernames[i].sock_fd == client_fd) {
-                    usernames[i].username = username;
-                }
             }
             FD_SET(client_fd, &all_fds);
             printf("Accepted connection\n");
