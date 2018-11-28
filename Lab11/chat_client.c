@@ -13,6 +13,17 @@
 #define BUF_SIZE 128
 
 int main(void) {
+    // Ask the user for their username
+    char username[BUF_SIZE + 1];
+    printf("Please input your username: ");
+    fgets(username, BUF_SIZE, stdin);
+    for (int i = 0; i < BUF_SIZE; i++) {
+        if (username[i] == '\n') {
+            username[i] = '\0';
+            break;
+        }
+    }
+
     // Create the socket FD.
     int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (sock_fd < 0) {
@@ -34,6 +45,13 @@ int main(void) {
     if (connect(sock_fd, (struct sockaddr *)&server, sizeof(server)) == -1) {
         perror("client: connect");
         close(sock_fd);
+        exit(1);
+    }
+
+    int nbytes;
+    nbytes = write(sock_fd, username, BUF_SIZE);
+    if (nbytes != BUF_SIZE) {
+        perror("Write username");
         exit(1);
     }
 

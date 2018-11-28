@@ -46,7 +46,13 @@ int accept_connection(int fd, struct sockname *usernames) {
     }
 
     usernames[user_index].sock_fd = client_fd;
-    usernames[user_index].username = NULL;
+    char *username = malloc(sizeof(char) * BUF_SIZE);
+    int nbytes = read(client_fd, username, BUF_SIZE);
+    if (nbytes != BUF_SIZE) {
+        perror("Read username");
+        exit(1);
+    }
+    usernames[user_index].username = username;
     return client_fd;
 }
 
