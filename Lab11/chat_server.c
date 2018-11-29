@@ -69,6 +69,7 @@ int read_from(int client_index, struct sockname *usernames) {
     if (num_read == 0) {
         usernames[client_index].sock_fd = -1;
         free(usernames[client_index].username);
+        usernames[client_index].username = NULL;
         return fd;
     }
     char result[BUF_SIZE];
