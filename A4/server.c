@@ -41,7 +41,7 @@ void rm_client(Client **lst, Client *client, fd_set *all_fds) {
         if (cur->next->sock_fd == client->sock_fd) {
             Client *tofree = cur->next;
             cur->next = cur->next->next;
-            free(cur->buf.buf);
+            free(tofree->buf.buf);
             free(tofree);
             return;
         }
@@ -54,6 +54,10 @@ void rm_client(Client **lst, Client *client, fd_set *all_fds) {
  */
 void init_reader(Reader *reader) {
     reader->buf = malloc(sizeof(char) * (BUFSIZE + 2));
+    if (reader->buf == NULL) {
+        perror("malloc for buf");
+        exit(1);
+    }
     memset(reader->buf, '\0', BUFSIZE + 2);
     reader->inbuf = 0;
     // Need to include 2 for \r\n !

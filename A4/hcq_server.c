@@ -273,6 +273,10 @@ int main(){
 
         if (FD_ISSET(sock_fd, &listen_fds)) {
             Client *new_client = malloc(sizeof(Client));
+            if (new_client == NULL) {
+                perror("malloc for new_client");
+                exit(1);
+            }
             new_client->next = NULL;
             init_reader(&new_client->buf);
             int client_fd = accept(sock_fd, NULL, NULL);
@@ -307,6 +311,10 @@ int main(){
         while (cur != NULL) {
             if (FD_ISSET(cur->sock_fd, &listen_fds)) {
                 char *instruction = malloc(1024 * sizeof(char));
+                if (instruction == NULL) {
+                    perror("malloc for instruction");
+                    exit(1);
+                }
                 memset(instruction, '\0', 1024);
                 int result = read_from(cur, instruction);
                 printf("result: %d, client: %d instruction: %s\n\n", result, cur->sock_fd,instruction);
