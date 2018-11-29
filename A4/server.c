@@ -53,10 +53,11 @@ void rm_client(Client **lst, Client *client, fd_set *all_fds) {
  * Initilize the buffered reader.
  */
 void init_reader(Reader *reader) {
-    reader->buf = malloc(sizeof(char) * BUFSIZE);
-    memset(reader->buf, '\0', BUFSIZE);
+    reader->buf = malloc(sizeof(char) * (BUFSIZE + 2));
+    memset(reader->buf, '\0', BUFSIZE + 2);
     reader->inbuf = 0;
-    reader->room = BUFSIZE;
+    // Need to include 2 for \r\n !
+    reader->room = BUFSIZE + 2;
     reader->after = reader->buf;
 }
 

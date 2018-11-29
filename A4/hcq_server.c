@@ -24,7 +24,7 @@
 #define WHICH_COURSE "Which course are you asking about?\r\n"
 #define INVALID_COURSE "This is not a valid course. Good-bye.\r\n"
 #define TA_OR_STU "Are you a TA or a Student (enter T or S)?\r\n"
-#define STU_TAKE "You are being taken by a TA."
+#define STU_TAKE "You are being taken by a TA.\r\n"
 //TODO: Change this!
 
 
@@ -52,7 +52,7 @@ void prepare_courses() {
 /*
  * Read from the client. Return 1 when they have entered a whole command
  * and save the command in array instruction. Return -1 if they type more than
- * 30 character consecutively without a new line(which is illegal input),
+ * 30 character consecutively without a new line(which is a illegal input),
  *  return 4 if they are disconnecting from the server. Return 0 if no command
  * is yet entered.
  */ 
@@ -63,7 +63,6 @@ int read_from(Client *client, char *instruction) {
     printf("nbytes read: %d\n", nbytes);
     printf("inbuf: %s", reader->buf);
     if (nbytes == 0) {
-        client->state = 4;
         return 4;
     }
     if (nbytes < 0) {
@@ -75,19 +74,19 @@ int read_from(Client *client, char *instruction) {
     if (where > 0) {
         reader->buf[where - 2] = '\0';
         strcpy(instruction, reader->buf);
-        memmove(reader->buf, reader->buf+where, BUFSIZE - where);
+        memmove(reader->buf, reader->buf+where, BUFSIZE + 2 - where);
         printf("leftinbuf:%s|\n", reader->buf);
         reader->inbuf -= where;
         reader->after = reader->buf + reader->inbuf;
-        reader->room = BUFSIZE - reader->inbuf;
+        reader->room = (BUFSIZE + 2) - reader->inbuf;
         return 1;
-    } else if (reader->inbuf == BUFSIZE) {
-        client->state = -1;
+    } else if (reader->inbuf > BUFSIZE) {
+        // Enter more than 30 char and have no \r\n, means illegal input!
         return -1;
     }
     reader->after = reader->buf + reader->inbuf;
     printf("inbuf_num: %d\n", reader->inbuf);
-    reader->room = BUFSIZE - reader->inbuf;
+    reader->room = BUFSIZE + 2 - reader->inbuf;
     return 0;
 }
 
@@ -157,17 +156,28 @@ void handle_state3(Client *client, char *instruction, Client **clients, fd_set *
             }
             free(result);
         } else if (strcmp(instruction, "next") == 0) {
-            //TODO: error checking here!
-            next_overall(client->name, &ta_list, &stu_list);
+            if (next_overall(client->name, &ta_list, &stu_list) == 1) {
+                // Should be impossible to reach here!
+                fprintf(stderr, "Something bad happen! Ta not in the list!");
+                exit(1);
+            }
             Ta *this_ta = find_ta(ta_list, client->name);
-            char *name_tofree = this_ta->current_student->name;
-            Client *tofree = find_client(*clients, name_tofree);
-            wbytes = write(tofree->sock_fd, STU_TAKE, strlen(STU_TAKE));
-            if (wbytes != strlen(STU_TAKE)) {
+            if (this_ta->current_student != NULL) {
+                char *name_tofree = this_ta->current_student->name;
+                Client *tofree = find_client(*clients, name_tofree);
+                wbytes = write(tofree->sock_fd, STU_TAKE, strlen(STU_TAKE));
+                if (wbytes != strlen(STU_TAKE)) {
+                    perror("write to client");
+                    exit(1);
+                }
+                rm_client(clients, tofree, all_fds);
+            }
+        } else {
+            wbytes = write(client->sock_fd, WRONG_SYN, strlen(WRONG_SYN));
+            if (wbytes != strlen(WRONG_SYN)) {
                 perror("write to client");
                 exit(1);
             }
-            rm_client(clients, tofree, all_fds);
         }
     } else {
         if (strcmp(instruction, "stats") == 0) {
@@ -300,18 +310,16 @@ int main(){
                 memset(instruction, '\0', 1024);
                 int result = read_from(cur, instruction);
                 printf("result: %d, client: %d instruction: %s\n\n", result, cur->sock_fd,instruction);
-                if (result == -1) {
-                    rm_client(&clients, cur, &all_fds);
-                } else if (result == 4) {
-                    if (cur->role == 'T') {
-                        remove_ta(&ta_list, cur->name);
-                    } else {
-                        give_up_waiting(&stu_list, cur->name);
+                if (result == -1 || result == 4) {
+                    if (cur->state == 3) {
+                        if (cur->role == 'T') {
+                            remove_ta(&ta_list, cur->name);
+                        } else {
+                            give_up_waiting(&stu_list, cur->name);
+                        }
                     }
                     rm_client(&clients, cur, &all_fds);
                 } else if (result == 1){
-                // TODO: need to know the return value of result to determine
-                // Whether to enter the following.
                     if (cur->state == 1) {
                         handle_state1(cur, instruction);
                     } else if (cur->state == 2) {

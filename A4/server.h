@@ -15,10 +15,8 @@ struct buf_reader {
  * state: 1: waiting for name
  *        2: waiting for role
  *        3: waiting for instruction
- *        4: normal exit
  *        5: student enter course
- *        -1: illegal input and disconnect
- *        
+ *        (4 is aborted from using for design reason!)
  */ 
 struct client {
     int sock_fd;
