@@ -1,4 +1,5 @@
-CFLAGS = -Wall -g
+PORT=50272
+CFLAGS = -DPORT=\$(PORT) -Wall -g
 
 hcq_server: hcq_server.o hcq.o server.o
 	gcc $(CFLAGS) -o hcq_server hcq_server.o hcq.o server.o
