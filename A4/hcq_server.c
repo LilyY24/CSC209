@@ -327,6 +327,8 @@ int main(){
 
         Client *cur = clients;
         while (cur != NULL) {
+            // This variable record whether cur has already been updated.
+            int is_updated = 0;
             if (FD_ISSET(cur->sock_fd, &listen_fds)) {
                 char *instruction = malloc(1024 * sizeof(char));
                 if (instruction == NULL) {
@@ -343,7 +345,12 @@ int main(){
                             give_up_waiting(&stu_list, cur->name);
                         }
                     }
-                    rm_client(&clients, cur, &all_fds);
+                    // Since we need to remove this client, need to update 
+                    // cur here.
+                    Client *temp = cur;
+                    cur = cur->next;
+                    is_updated = 1;
+                    rm_client(&clients, temp, &all_fds);
                 } else if (result == 1){
                     if (cur->state == 1) {
                         handle_state1(cur, instruction);
@@ -354,13 +361,18 @@ int main(){
                     } else if (cur->state == 5) {
                         int status = handle_state5(cur, instruction, &all_fds);
                         if (status == -1) {
-                            rm_client(&clients, cur, &all_fds);
+                            Client *temp = cur;
+                            cur = cur->next;
+                            is_updated = 1;
+                            rm_client(&clients, temp, &all_fds);
                         }
                     }
                 }
                 free(instruction);
             }
-            cur = cur->next;
+            if (is_updated == 0) {
+                cur = cur->next;
+            }
         }
     }
 }
