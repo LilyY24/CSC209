@@ -281,7 +281,8 @@ char *print_currently_serving(Ta *ta_list) {
     }
 
     char *result = malloc(sizeof(char) * (length + 1));
-    //Builg the string in the second loop
+    result[0] = '\0';
+    //Build the string in the second loop
     cur = ta_list;
     while (cur != NULL) {
         char *buf;
