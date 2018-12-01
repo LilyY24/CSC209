@@ -25,6 +25,7 @@
 #define INVALID_COURSE "This is not a valid course. Good-bye.\r\n"
 #define TA_OR_STU "Are you a TA or a Student (enter T or S)?\r\n"
 #define STU_TAKE "You are being taken by a TA.\r\n"
+#define ALREADY_IN "You are already in the queue and cannot be added again for any course. Good-bye.\r\n"
 //TODO: Change this!
 
 
@@ -164,7 +165,12 @@ void handle_state3(Client *client, char *instruction, Client **clients, fd_set *
             Ta *this_ta = find_ta(ta_list, client->name);
             if (this_ta->current_student != NULL) {
                 char *name_tofree = this_ta->current_student->name;
-                Client *tofree = find_client(*clients, name_tofree);
+                Client *tofree = find_stu_client(*clients, name_tofree);
+                if (tofree == NULL) {
+                    //It should be impossible to reach here
+                    fprintf(stderr, "Something bad happen, Student is not a client");
+                    exit(1);
+                }
                 wbytes = write(tofree->sock_fd, STU_TAKE, strlen(STU_TAKE));
                 if (wbytes != strlen(STU_TAKE)) {
                     perror("write to client");

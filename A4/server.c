@@ -66,12 +66,14 @@ void init_reader(Reader *reader) {
 }
 
 /*
- * Return a pointre to the client with given name. Return NULL on not found.
+ * Return a pointre to the student client with given name. 
+ * Return NULL on not found. This is a helper function for removing
+ * student from clients list when the student is taken by a TA.
  */ 
-Client *find_client(Client *clients, char *name) {
+Client *find_stu_client(Client *clients, char *name) {
     Client *cur = clients;
     while (cur != NULL) {
-        if (strcmp(cur->name, name) == 0) {
+        if (strcmp(cur->name, name) == 0 && cur->role == 'S') {
             return cur;
         }
         cur = cur->next;

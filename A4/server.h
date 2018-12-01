@@ -34,6 +34,6 @@ typedef struct buf_reader Reader;
 int find_network_newline(const char *buf, int n);
 void rm_client(Client **lst, Client *client, fd_set *all_fds);
 void init_reader(Reader *reader);
-Client *find_client(Client *clients, char *name);
+Client *find_stu_client(Client *clients, char *name);
 
 #endif
