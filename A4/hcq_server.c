@@ -61,8 +61,6 @@ void prepare_courses() {
 int read_from(Client *client, char *instruction) {
     Reader *reader = &client->buf;
     int nbytes = read(client->sock_fd, reader->after, reader->room);
-    printf("nbytes read: %d\n", nbytes);
-    printf("inbuf: %s", reader->buf);
     if (nbytes == 0) {
         return 4;
     }
@@ -76,7 +74,6 @@ int read_from(Client *client, char *instruction) {
         reader->buf[where - 2] = '\0';
         strcpy(instruction, reader->buf);
         memmove(reader->buf, reader->buf+where, BUFSIZE + 2 - where);
-        printf("leftinbuf:%s|\n", reader->buf);
         reader->inbuf -= where;
         reader->after = reader->buf + reader->inbuf;
         reader->room = (BUFSIZE + 2) - reader->inbuf;
@@ -86,7 +83,6 @@ int read_from(Client *client, char *instruction) {
         return -1;
     }
     reader->after = reader->buf + reader->inbuf;
-    printf("inbuf_num: %d\n", reader->inbuf);
     reader->room = BUFSIZE + 2 - reader->inbuf;
     return 0;
 }
@@ -339,7 +335,6 @@ int main(){
                 }
                 memset(instruction, '\0', 1024);
                 int result = read_from(cur, instruction);
-                printf("result: %d, client: %d instruction: %s\n\n", result, cur->sock_fd,instruction);
                 if (result == -1 || result == 4) {
                     if (cur->state == 3) {
                         if (cur->role == 'T') {

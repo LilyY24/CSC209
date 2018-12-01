@@ -45,7 +45,21 @@ Course *find_course(Course *courses, int num_courses, char *course_code) {
     }
     return NULL;
 }
-    
+
+/* The TA ta is done with their current student. 
+ * Calculate the stats (the times etc.) and then 
+ * free the memory for the student. 
+ * If the TA has no current student, do nothing.
+ */
+void release_current_student(Ta *ta) {
+    if (ta->current_student == NULL){
+        return;
+    }
+    Student *cur = ta->current_student;
+    free(cur->name);
+    free(cur);
+    ta->current_student = NULL;
+}
 
 /* Add a student to the queue with student_name and a question about course_code.
  * if a student with this name already has a question in the queue (for any
@@ -158,13 +172,17 @@ int remove_ta(Ta **ta_list_ptr, char *ta_name) {
     } else if (strcmp(head->name, ta_name) == 0) {
         // TA is at the head so special case
         *ta_list_ptr = head->next;
+        release_current_student(head);
+        free(head->name);
         free(head);
         return 0;
     } 
     while (head->next != NULL) {
         if (strcmp(head->next->name, ta_name) == 0) {
             Ta *tofree = head->next;
+            release_current_student(tofree);
             head->next = head->next->next;
+            free(tofree->name);
             free(tofree);
             return 0;
         }
