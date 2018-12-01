@@ -189,6 +189,7 @@ void handle_state3(Client *client, char *instruction, Client **clients, fd_set *
                 perror("write to client");
                 exit(1);
             }
+            free(result);
         } else {
             wbytes = write(client->sock_fd, WRONG_SYN, strlen(WRONG_SYN));
             if (wbytes != strlen(WRONG_SYN)) {
