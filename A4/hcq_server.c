@@ -21,7 +21,7 @@
 #define VALID_TA "Valid commands for TA:\r\n        stats\r\n        next\r\n        (or use Ctrl-C to leave)\r\n"
 #define VALID_STU "You have been entered into the queue. While you wait, you can use the command stats to see which TAs are currently serving students.\r\n"
 #define WRONG_SYN "Incorrect syntax\r\n"
-#define WHICH_COURSE "Which course are you asking about?\r\n"
+#define WHICH_COURSE "Valid courses: CSC108, CSC148, CSC209\r\nWhich course are you asking about?\r\n"
 #define INVALID_COURSE "This is not a valid course. Good-bye.\r\n"
 #define TA_OR_STU "Are you a TA or a Student (enter T or S)?\r\n"
 #define STU_TAKE "You are being taken by a TA.\r\n"
@@ -205,20 +205,35 @@ void handle_state3(Client *client, char *instruction, Client **clients, fd_set *
 
 /*
  * Handle the case where a student is asked which course he/she want to ask.
- * Disconnect the client upon invalid course.
+ * Disconnect the client upon invalid course. Return -1 on student already in 
+ * the queue., return 0 on normal.
  */ 
-void handle_state5(Client *client, char *instruction, fd_set *all_fds) {
+int handle_state5(Client *client, char *instruction, fd_set *all_fds) {
     int wbytes;
     if (strcmp(instruction, "CSC108") == 0 ||
         strcmp(instruction, "CSC209") == 0 ||
         strcmp(instruction, "CSC148") == 0) {
-            add_student(&stu_list, client->name, instruction, courses, num_courses);
-            wbytes = write(client->sock_fd, VALID_STU, strlen(VALID_STU));
-            if (wbytes != strlen(VALID_STU)) {
-                perror("write to client");
+            int status = add_student(&stu_list, client->name, instruction, 
+                                        courses, num_courses);
+            if (status == 0) {
+                wbytes = write(client->sock_fd, VALID_STU, strlen(VALID_STU));
+                if (wbytes != strlen(VALID_STU)) {
+                    perror("write to client");
+                    exit(1);
+                }
+                client->state = 3;
+            } else if (status == 1) {
+                wbytes = write(client->sock_fd, ALREADY_IN, strlen(ALREADY_IN));
+                if (wbytes != strlen(ALREADY_IN)) {
+                    perror("write to client");
+                    exit(1);
+                }
+                return -1;
+            } else {
+                // Should never be able to reach here, since we already checked.
+                fprintf(stderr, "Course not in the list\n");
                 exit(1);
             }
-            client->state = 3;
     } else {
         wbytes = write(client->sock_fd, INVALID_COURSE, strlen(INVALID_COURSE));
         if (wbytes != strlen(INVALID_COURSE)) {
@@ -226,7 +241,8 @@ void handle_state5(Client *client, char *instruction, fd_set *all_fds) {
             exit(1);
         }
         rm_client(&clients, client, all_fds);
-    }  
+    }
+    return 0;  
 }
 
 int main(){
@@ -341,7 +357,10 @@ int main(){
                     } else if (cur->state == 3) {
                         handle_state3(cur, instruction, &clients, &all_fds);
                     } else if (cur->state == 5) {
-                        handle_state5(cur, instruction, &all_fds);
+                        int status = handle_state5(cur, instruction, &all_fds);
+                        if (status == -1) {
+                            rm_client(&clients, cur, &all_fds);
+                        }
                     }
                 }
                 free(instruction);
