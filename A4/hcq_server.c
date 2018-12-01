@@ -24,7 +24,7 @@
 #define WHICH_COURSE "Valid courses: CSC108, CSC148, CSC209\r\nWhich course are you asking about?\r\n"
 #define INVALID_COURSE "This is not a valid course. Good-bye.\r\n"
 #define TA_OR_STU "Are you a TA or a Student (enter T or S)?\r\n"
-#define STU_TAKE "You are being taken by a TA.\r\n"
+#define STU_TAKE "Your turn to see the TA.\r\nWe are disconnecting you from the server now. Press Ctrl-C to close nc\r\n"
 #define ALREADY_IN "You are already in the queue and cannot be added again for any course. Good-bye.\r\n"
 //TODO: Change this!
 
