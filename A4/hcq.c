@@ -343,7 +343,7 @@ char *print_full_queue(Student *stu_list) {
         free(buf);
         cur = cur->next_overall;
     }
-    // TODO:Check how the end of string whether it should be \r\n\0?
+
     char *result = malloc(sizeof(char) * (length + 1));
     strcpy(result, header);
     // Second loop to construct the string

@@ -17,7 +17,6 @@
 #define MAX_BACKLOG 5
 #define WELCOME "Welcome to the Help Centre, what is your name?\r\n"
 #define INVALID_ROLE "Invalid role (enter T or S)\r\n"
-//TODO: Ask about this
 #define VALID_TA "Valid commands for TA:\r\n        stats\r\n        next\r\n        (or use Ctrl-C to leave)\r\n"
 #define VALID_STU "You have been entered into the queue. While you wait, you can use the command stats to see which TAs are currently serving students.\r\n"
 #define WRONG_SYN "Incorrect syntax\r\n"
@@ -26,10 +25,8 @@
 #define TA_OR_STU "Are you a TA or a Student (enter T or S)?\r\n"
 #define STU_TAKE "Your turn to see the TA.\r\nWe are disconnecting you from the server now. Press Ctrl-C to close nc\r\n"
 #define ALREADY_IN "You are already in the queue and cannot be added again for any course. Good-bye.\r\n"
-//TODO: Change this!
 
 
-//TODO: Need to close socket upon remove!
 // Use global variables.
 Ta *ta_list = NULL;
 Student *stu_list = NULL;
@@ -57,7 +54,6 @@ void prepare_courses() {
  *  return 4 if they are disconnecting from the server. Return 0 if no command
  * is yet entered.
  */ 
-// TODO: still need to handle the case there the username is exactly 30 char long.
 int read_from(Client *client, char *instruction) {
     Reader *reader = &client->buf;
     int nbytes = read(client->sock_fd, reader->after, reader->room);
@@ -305,7 +301,6 @@ int main(){
                 exit(1);
             }
             new_client->sock_fd = client_fd;
-            //TODO: null terminated? IS the add 1 necessary?
             nwrite = write(client_fd, WELCOME, strlen(WELCOME) + 1);
             if (nwrite != strlen(WELCOME) + 1) {
                 perror("Write to client");
